@@ -38,5 +38,5 @@ It is strongly recommended to initialise the seed with `set_seed(value)` in ever
 
 ## Release Notes (Latest First)
 
-**Version 0.1.1** Changed the crate name to `ran` as all others are taken.
+**Version 0.1.1** Changed the crate name to `ran` as all others are taken.  
 **Version 0.1.0** The initial version.
