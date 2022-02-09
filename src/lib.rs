@@ -27,7 +27,7 @@ thread_local!(
     static SEED: RefCell<u64> = RefCell::new(7777777_u64);
 );
 
-/// Use this funtion to initialise the thread local static SEED
+/// Use this function to initialise the thread local static SEED
 pub fn set_seed( seed:u64 ) { SEED.with(|s| *s.borrow_mut() = seed) }
 /// private function to read the seed values
 fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
@@ -37,10 +37,10 @@ fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
 /// when you know that it will fit in.
 /// # Example
 /// ```
-/// use random::*;
+/// use ran::*;
 /// set_seed(1234567);
 /// // Let us roll the classical die [1,6]
-/// assert_eq!(1_u8,ran_range(1u64,6u64)as u8);
+/// assert_eq!(1_u8,ran_urange(1u64,6u64)as u8);
 /// ```
 pub fn ran_urange(min:u64, max:u64) -> u64 {
     (((max+1) as f64) * ranf64()).floor() as u64 + min }

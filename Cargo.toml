@@ -1,6 +1,6 @@
 [package]
 name = "ran"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Libor Spacek"]
 description = """Simple, fast random numbers generation"""
@@ -8,8 +8,8 @@ readme = "README.md"
 homepage = "https://github.com/liborty/random"
 repository = "https://github.com/liborty/random"
 license-file = "LICENSE"
-keywords = ["merge-sort","set-operations","ranking-searching","random","generic-vectors"]
-categories = ["mathematics","algorithms","data-structures","rust-patterns","simulation"]
+keywords = ["random_numbers","generators","testing","XOR","shift"]
+categories = ["algorithms","development-tools::testing","simulation","mathematics","science"]
 include = [
     "src/*.rs",
     "tests/*.rs",

@@ -36,7 +36,53 @@ pub fn set_seed( seed:u64 ) { SEED.with(|s| *s.borrow_mut() = seed) }
 ```
 It is strongly recommended to initialise the seed with `set_seed(value)` in every thread where you may want to be generating the random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do.
 
+## Public Functions Signatures
+
+```Rust
+/// Use this function to initialise the thread local static SEED
+pub fn set_seed( seed:u64 );
+
+/// Generates u64 random number in the range [min,max].
+pub fn ran_urange(min:u64, max:u64) -> u64;
+
+/// Generates an f64 random number in the range [min:f64,max:f64)
+pub fn ran_frange(min:f64, max:f64) -> f64;
+
+/// Generates f64 random number in the standardised range [0,1).
+pub fn ranf64() -> f64;
+
+/// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
+pub fn ranvf64(d: usize) -> Vec<f64>;
+
+/// Generates vector of size d, filled with random numbers in the interval [0_u8,255_u8].
+pub fn ranvu8(d: usize) -> Vec<u8>;
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
+pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>;
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
+pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>>;
+
+/// Simple SPLITMIX64 fast generator
+pub fn splitmix() -> u64;
+
+/// Sets SEED to initvalue and then uses `splitmix` to generate four further seeds for `xoshiro`
+pub fn set_xoshiro(initvalue:u64) -> [u64;4];
+
+/// Possibly the best f64 random generator.
+pub fn xoshiro(s: &mut[u64;4]) -> f64;
+
+/// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
+pub fn ranvf64_xoshiro(mut s:[u64;4],d: usize) -> Vec<f64>;
+
+/// Generates vector of size d filled with random numbers in the interval [0_u8,255_u8],
+pub fn ranvu8_xoshiro(mut s:[u64;4],d: usize) -> Vec<u8>;
+```
+
 ## Release Notes (Latest First)
 
-**Version 0.1.1** Changed the crate name to `ran` as all others are taken.  
+**Version 0.1.2** Fixed the initial typos.
+
+**Version 0.1.1** Changed the crate name to `ran` as all others are taken.
+
 **Version 0.1.0** The initial version.
