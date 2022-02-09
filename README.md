@@ -1,9 +1,9 @@
 # Random
 
 [<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/liborty/random/HEAD?logo=github">](https://github.com/liborty/random)
-[<img alt="crates.io" src="https://img.shields.io/crates/v/random?logo=rust">](https://crates.io/crates/random)
-[<img alt="crates.io" src="https://img.shields.io/crates/d/random?logo=rust">](https://crates.io/crates/random)
-[<img alt="docs.rs" src="https://img.shields.io/docsrs/random?logo=rust">](https://docs.rs/random)
+[<img alt="crates.io" src="https://img.shields.io/crates/v/ran?logo=rust">](https://crates.io/crates/ran)
+[<img alt="crates.io" src="https://img.shields.io/crates/d/ran?logo=rust">](https://crates.io/crates/ran)
+[<img alt="docs.rs" src="https://img.shields.io/docsrs/ran?logo=rust">](https://docs.rs/ran)
 
 ## Description
 
