@@ -9,7 +9,7 @@
 
 The rationale for this crate is to generate good quality random numbers fast, simply and with a minimal footprint.
 
-Not everyone wants to add 375KB plus another ten dependencies, just to generate a bunch of random numbers for testing etc ( looking at the 'other' crate: `rand`).
+Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing etc ( looking at the 'other' crate: `rand`).
 
 In contradistinction, this crate is lightweight and it has no dependencies at all.
 
@@ -31,15 +31,15 @@ thread_local!(
     static SEED: RefCell<u64> = RefCell::new(7777777_u64);
 );
 
-/// Use this function to initialise the thread local static SEED
+/// Use this function to initialise the SEED
 pub fn set_seed( seed:u64 ) { SEED.with(|s| *s.borrow_mut() = seed) }
 ```
-It is strongly recommended to initialise the seed with `set_seed(value)` in every thread where you may want to be generating the random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do.
+It is strongly recommended to initialise the seed with `set_seed(value)` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to get a new, different sequence.
 
 ## Public Functions Signatures
 
 ```Rust
-/// Use this function to initialise the thread local static SEED
+/// Use this function to initialise the SEED
 pub fn set_seed( seed:u64 );
 
 /// Generates u64 random number in the range [min,max].
@@ -69,7 +69,7 @@ pub fn splitmix() -> u64;
 /// Sets SEED to initvalue and then uses `splitmix` to generate four further seeds for `xoshiro`
 pub fn set_xoshiro(initvalue:u64) -> [u64;4];
 
-/// Possibly the best f64 random generator.
+/// Possibly the best f64 random generator
 pub fn xoshiro(s: &mut[u64;4]) -> f64;
 
 /// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
