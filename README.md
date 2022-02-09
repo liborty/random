@@ -38,7 +38,7 @@ It is strongly recommended to initialise the seed with `set_seed(value)` in ever
 
 ## Public Functions Signatures
 
-```Rust
+```rust
 /// Use this function to initialise the SEED
 pub fn set_seed( seed:u64 );
 
