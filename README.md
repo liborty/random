@@ -1,4 +1,4 @@
-# Random
+# Ran
 
 [<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/liborty/random/HEAD?logo=github">](https://github.com/liborty/random)
 [<img alt="crates.io" src="https://img.shields.io/crates/v/ran?logo=rust">](https://crates.io/crates/ran)
@@ -21,7 +21,7 @@ The third algorithm, `splitmix`, generates u64 numbers in their full range. It i
 
 ## Usage
 
-`use random::*;`
+`use ran::*;`
 
 These algorithms use a thread safe seed, defined as follows:
 ```rust
