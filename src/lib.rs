@@ -133,12 +133,24 @@ pub fn xoshiro(s: &mut[u64;4]) -> f64 {
 }
 
 /// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvf64_xoshiro(mut s:[u64;4],d: usize) -> Vec<f64> {
-    (0..d).map(|_|xoshiro(&mut s)).collect::<Vec<f64>>()
+pub fn ranvf64_xoshiro(s:&mut[u64;4],d: usize) -> Vec<f64> {
+    (0..d).map(|_|xoshiro(s)).collect::<Vec<f64>>()
 }
 
 /// Generates vector of size d filled with random numbers in the interval [0_u8,255_u8],
 /// using xoshiro. Needs an &mut array of its seeds passed to it
-pub fn ranvu8_xoshiro(mut s:[u64;4],d: usize) -> Vec<u8> {
-    (0..d).map(|_|(256. * xoshiro(&mut s)).floor() as u8).collect::<Vec<u8>>()
+pub fn ranvu8_xoshiro(s:&mut[u64;4],d: usize) -> Vec<u8> {
+    (0..d).map(|_|(256. * xoshiro(s)).floor() as u8).collect::<Vec<u8>>()
+}
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
+pub fn ranvvf64_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<f64>> {
+    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
+    (0..n).map(|_|ranvf64_xoshiro(s,d)).collect::<Vec<Vec<f64>>>()
+}
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
+pub fn ranvvu8_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<u8>> {
+    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
+    (0..n).map(|_|ranvu8_xoshiro(s,d)).collect::<Vec<Vec<u8>>>()
 }

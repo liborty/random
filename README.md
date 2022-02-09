@@ -70,16 +70,24 @@ pub fn splitmix() -> u64;
 pub fn set_xoshiro(initvalue:u64) -> [u64;4];
 
 /// Possibly the best f64 random generator
-pub fn xoshiro(s: &mut[u64;4]) -> f64;
+pub fn xoshiro(s:&mut[u64;4]) -> f64;
 
 /// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvf64_xoshiro(mut s:[u64;4],d: usize) -> Vec<f64>;
+pub fn ranvf64_xoshiro(s:&mut[u64;4], d:usize) -> Vec<f64>;
 
 /// Generates vector of size d filled with random numbers in the interval [0_u8,255_u8],
-pub fn ranvu8_xoshiro(mut s:[u64;4],d: usize) -> Vec<u8>;
+pub fn ranvu8_xoshiro(s:&mut[u64;4], d:usize) -> Vec<u8>;
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
+pub fn ranvvf64_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<f64>>;
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
+pub fn ranvvu8_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<u8>>;
 ```
 
 ## Release Notes (Latest First)
+
+**Version 0.1.3** Tested and fixed an &mut argument. Added `ranvvf64_xoshiro` and `ranvvu8_xoshiro` for completeness.
 
 **Version 0.1.2** Fixed the initial typos.
 
