@@ -97,10 +97,10 @@ pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> {
 /// May panic with overflow in debug mode (just use release mode)
 /// #[overflow_checks(off)] - unfortunately, this attribute is not defined in Rust
 pub fn splitmix() -> u64 {
-    let mut z = get_seed() + 0x9e3779b97f4a7c15;
+    let mut z = get_seed().overflowing_add(0x9e3779b97f4a7c15).0;
     set_seed(z);
-	z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
-	z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
+	z = (z ^ (z >> 30)).overflowing_mul(0xbf58476d1ce4e5b9).0;
+	z = (z ^ (z >> 27)).overflowing_mul(0x94d049bb133111eb).0;
 	z ^ (z >> 31)
 }
 
@@ -121,7 +121,7 @@ pub fn set_xoshiro(initvalue:u64) -> [u64;4] {
 /// Also added conversion to f64 output in the range [0,1)
 #[inline]
 pub fn xoshiro(s: &mut[u64;4]) -> f64 {
-	let result = ((s[0]+s[3])>>11) as f64 / MANTISSA_MAX;
+	let result = ((s[0].overflowing_add(s[3])).0 >> 11) as f64 / MANTISSA_MAX;
 	let t = s[1] << 17;
 	s[2] ^= s[0];
 	s[3] ^= s[1];

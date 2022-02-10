@@ -87,6 +87,8 @@ pub fn ranvvu8_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<u8>>;
 
 ## Release Notes (Latest First)
 
+**Version 0.1.4** Fixed the debug mode overflow 'errors'. They were not affecting the release mode but given that this crate is intended for testing, they were annoying. The solution was to use `overflowing_` versions of some of the operators, available as of Rust version 1.53. So, in case of problems, you may have to update to the latest (stable) version of Rust.
+
 **Version 0.1.3** Tested and fixed an &mut argument. Added `ranvvf64_xoshiro` and `ranvvu8_xoshiro` for completeness.
 
 **Version 0.1.2** Fixed the initial typos.
