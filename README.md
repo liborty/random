@@ -39,7 +39,7 @@ pub fn ran_ubits(bits:i32) -> u64
 
 * `ranf64()` is a little older (George Marsaglia, 2003). It has been adapted here to generate f64 numbers in the half open interval [0,1). That means its output can be easily transformed into any other range. Its main claim to fame is its superior speed.
 
-* `xoshif64()` is also fast, though not quite as much as `ranf64()` but it makes up for it by quality. It has also been adpted to output f64 numbers in the range [0,1).
+* `xoshif64()` is also fast, though not quite as much as `ranf64()` but it makes up for it by quality. It has also been adapted to output f64 numbers in the range [0,1).
 
 Again, there is a transformation wrapper. It takes an output of either `ranf64()` or `xoshif64()` as the first argument:
 
@@ -104,7 +104,7 @@ pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>>
 
 ## Release Notes (Latest First)
 
-**Version 0.2.0** Added general purpose `xoshiu64()` which is now used to construct random numbers of all (unsigned) integer types and ranges. Reorganised, renamed and/or deleted some functions. Made the xoshiro seeds also static, for ease of use. They no longer need to be explicitly passed as arguments.
+**Version 0.2.0** Added general purpose `xoshiu64()` which is now used to construct random numbers of all (unsigned) integer types and ranges. Reorganised, renamed and/or deleted some functions. Made the xoshi seeds also static, for ease of use. They no longer need to be explicitly passed as arguments.
 
 **Version 0.1.4** Fixed the debug mode overflow 'errors'. They were not affecting the release mode but given that this crate is intended for testing, they were annoying. The solution was to use `overflowing_` versions of some of the operators, available as of Rust version 1.53. So, in case of problems, you may have to update to the latest (stable) version of Rust.
 
