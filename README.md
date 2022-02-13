@@ -9,83 +9,102 @@
 
 The rationale for this crate is to generate good quality random numbers fast, simply and with a minimal footprint.
 
-Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing etc ( looking at the 'other' crate: `rand`).
+Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing etc ( looking at the 'other' crate: `rand` ).
 
-In contradistinction, this crate is lightweight and it has no dependencies at all.
+In contradistinction, this crate is lightweight and it has no dependencies.
 
-There are three main algorithms on offer, plus a few utility functions to generate vectors and vectors of vectors filled with random numbers.
+Even so, there are four different algorithms on offer, plus some utility functions to easily generate vectors and vectors of vectors filled with random numbers.
 
-Two of the base algorithms, `ranf64` and `xoshiro` generate individual f64 random numbers in the half open interval [0,1). 'Xoshiro' is a fast, modern f64 generator of top quality. It is easy to convert from this standardised range to any new desired range [min,max]. Examples are provided.
+The main objective has been the ease of use rather than flat-out speed but the algorithms are neverheless very fast.
 
-The third algorithm, `splitmix`, generates u64 numbers in their full range. It is currently used just to initialise the seeds for `xoshiro`. However, it does pass the tests. We may add an optimal u64 generator later.
+## Integer Algorithms
+
+* `xoshiu64()` generates u64 random numbers in full 64 bit range and 2^256 state space. That means the sequence is not going to repeat for a very long time. This algorithm is used to construct random numbers of all (unsigned) integer types and ranges up to 64 bits.
+
+* `splitmix()` also generates u64 numbers. It is used here only to generate the initial seeds for the 'xoshi' type algorithms.
+
+There are two transformation wrappers for `xoshiu64()`:
+
+```rust
+/// Generate u64 random number in the interval [min,max].
+pub fn ran_urange(min:u64, max:u64) -> u64 
+
+/// Get random numbers of various smaller unsigned integer types by 
+/// specifying the number of bits required,  
+/// e.g. `ran_ubits(16) as u16`
+pub fn ran_ubits(bits:i32) -> u64 
+```
+
+## Floating Point Algorithms
+
+* `ranf64()` is a little older (George Marsaglia, 2003). It has been adapted here to generate f64 numbers in the half open interval [0,1). That means its output can be easily transformed into any other range. Its main claim to fame is its superior speed.
+
+* `xoshif64()` is also fast, though not quite as much as `ranf64()` but it makes up for it by quality. It has also been adpted to output f64 numbers in the range [0,1).
+
+Again, there is a transformation wrapper. It takes an output of either `ranf64()` or `xoshif64()` as the first argument:
+
+```rust
+/// Transform an f64 number in [0,1) to [min,max)
+pub fn ran_frange(rnum:f64, min:f64, max:f64) -> f64 
+```
 
 ## Usage
 
 `use ran::*;`
 
-These algorithms use a thread safe seed, defined as follows:
-```rust
-// SEED is used by `ranf64` and/or `splitmix` algorithms
-thread_local!(
-    // initialise SEED to a default value, in case user omits to set it
-    static SEED: RefCell<u64> = RefCell::new(7777777_u64);
-);
+These algorithms use thread safe static seeds.
 
-/// Use this function to initialise the SEED
-pub fn set_seed( seed:u64 ) { SEED.with(|s| *s.borrow_mut() = seed) }
+It is strongly recommended to initialise the main SEED with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to get a new, different sequence.
+
+
+```rust
+/// Use this function to initialise SEED and also xoshi seeds X0-X3. 
+/// The supplied value must be > 0, otherwise SEED will not be changed.
+pub fn set_seeds( seed:u64 )
+
+/// Reset xoshi seeds without changing the main SEED.
+/// There is usually no need to reset any already running seeds.
+pub fn reset_xoshi() 
 ```
-It is strongly recommended to initialise the seed with `set_seed(value)` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to get a new, different sequence.
 
-## Public Functions Signatures
+Also included are higher level utility functions to generate vectors and vectors of vectors of random numbers of some basic types:
 
 ```rust
-/// Use this function to initialise the SEED
-pub fn set_seed( seed:u64 );
 
-/// Generates u64 random number in the range [min,max].
-pub fn ran_urange(min:u64, max:u64) -> u64;
-
-/// Generates an f64 random number in the range [min:f64,max:f64)
-pub fn ran_frange(min:f64, max:f64) -> f64;
-
-/// Generates f64 random number in the standardised range [0,1).
-pub fn ranf64() -> f64;
+/// Generates vector of size d, filled with full range u64 random numbers.
+pub fn ranvu64(d: usize) -> Vec<u64> 
 
 /// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvf64(d: usize) -> Vec<f64>;
+pub fn ranvf64(d: usize) -> Vec<f64>
 
 /// Generates vector of size d, filled with random numbers in the interval [0_u8,255_u8].
-pub fn ranvu8(d: usize) -> Vec<u8>;
+/// You can similarly recast u64 yourself to any other type.
+pub fn ranvu8(d: usize) -> Vec<u8> 
+
+/// Generates n vectors of size d each, filled with full range u64 random numbers.
+pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>> 
 
 /// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>;
+pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>
 
 /// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
-pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>>;
+pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
+```
 
-/// Simple SPLITMIX64 fast generator
-pub fn splitmix() -> u64;
+And these alternatives, using the 'improved' f64 generator `xoshif64()`:
 
-/// Sets SEED to initvalue and then uses `splitmix` to generate four further seeds for `xoshiro`
-pub fn set_xoshiro(initvalue:u64) -> [u64;4];
-
-/// Possibly the best f64 random generator
-pub fn xoshiro(s:&mut[u64;4]) -> f64;
-
+```rust
 /// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvf64_xoshiro(s:&mut[u64;4], d:usize) -> Vec<f64>;
-
-/// Generates vector of size d filled with random numbers in the interval [0_u8,255_u8],
-pub fn ranvu8_xoshiro(s:&mut[u64;4], d:usize) -> Vec<u8>;
+/// Bit slower but otherwise superior to `ranvf64`.
+pub fn ranvf64_xoshi(d: usize) -> Vec<f64> 
 
 /// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvvf64_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<f64>>;
-
-/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
-pub fn ranvvu8_xoshiro(s:&mut[u64;4], d: usize, n: usize) -> Vec<Vec<u8>>;
+pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>> 
 ```
 
 ## Release Notes (Latest First)
+
+**Version 0.2.0** Added general purpose `xoshiu64()` which is now used to construct random numbers of all (unsigned) integer types and ranges. Reorganised, renamed and/or deleted some functions. Made the xoshiro seeds also static, for ease of use. They no longer need to be explicitly passed as arguments.
 
 **Version 0.1.4** Fixed the debug mode overflow 'errors'. They were not affecting the release mode but given that this crate is intended for testing, they were annoying. The solution was to use `overflowing_` versions of some of the operators, available as of Rust version 1.53. So, in case of problems, you may have to update to the latest (stable) version of Rust.
 
