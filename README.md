@@ -17,7 +17,16 @@ Even so, there are four different algorithms on offer, plus a good range of util
 
 The main objective has been the ease of use rather than flat-out speed but the algorithms are neverheless very fast.
 
-It is highly recommended to run `tests/tests.rs` with examples of usage.
+It is highly recommended to run `tests/tests.rs` with examples of usage. Here is a part of it:
+```rust
+    set_seeds(777777_u64);
+    let dice = (0..20).map(|_| 
+        ran_urange(1u64,6u64)as u8).collect::<Vec<u8>>();
+    println!("\nDice roll: {}",dice.gr());
+    println!("Random bytes: {}",ranvu8(15).gr());
+    println!("Matrix of integers [-10,10]:\n{}",
+        ranvvi64(5,5,-10,10).gr());
+```
 
 ## Integer Algorithms
 

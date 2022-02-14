@@ -9,7 +9,7 @@ use ran::*;
 #[test]
 fn rannums() {
     set_seeds(777777_u64);
-    let dice = (0..20).map(|_i| 
+    let dice = (0..20).map(|_| 
         ran_urange(1u64,6u64)as u8).collect::<Vec<u8>>();
     println!("\nDice roll: {}",dice.gr());
     println!("Random bytes: {}",ranvu8(15).gr());
