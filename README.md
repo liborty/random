@@ -86,7 +86,6 @@ Also included are utility functions to generate vectors of random numbers of com
 pub fn ranvu64(d: usize) -> Vec<u64> 
 
 /// Generates vector of size d, of u8 random numbers in [0,255].
-/// This is how to recast u64 to any other unsigned int type.
 pub fn ranvu8(d: usize) -> Vec<u8> 
 
 /// Generates vector of size d, of i64 random numbers in [min,max].
