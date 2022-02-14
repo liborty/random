@@ -8,15 +8,16 @@ use ran::*;
 
 #[test]
 fn rannums() {
-    set_seeds(7777777777_u64);
+    set_seeds(777777_u64);
     let dice = (0..20).map(|_i| 
         ran_urange(1u64,6u64)as u8).collect::<Vec<u8>>();
-    println!("Dice roll: {}",dice.gr());
-    println!("Bytes: {}",ranvu8(15).gr());
+    println!("\nDice roll: {}",dice.gr());
+    println!("Random bytes: {}",ranvu8(15).gr());
+    println!("Matrix of integers [-10,10]:\n{}",ranvvi64(5,5,-10,10).gr());
 
     let d = 10000_usize;
     let n = 20_usize;
-    println!( "Generating {} sets of vectors of length {} each for each type",
+    println!( "Generating {} sets of vectors of length {} each",
         n.red(), d.red() );
     let mut u_timer = DevTime::new_simple();
     let mut f_timer = DevTime::new_simple();

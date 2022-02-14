@@ -33,7 +33,7 @@ thread_local!(
 );
 
 /// Use this function to initialise SEED and also xoshi seeds X0-X3. 
-/// The supplied value must be > 0, otherwise SEED will not be changed.
+/// The supplied value must be > 0, otherwise nothing will be changed.
 pub fn set_seeds( seed:u64 ) { 
     if seed == 0 { return };
     SEED.with(|s| *s.borrow_mut() = seed);    
@@ -69,6 +69,14 @@ fn put_xoshi(seeds: &[u64;4]) {
     X3.with(|s| *s.borrow_mut() = seeds[3]);
 }
 
+/// Get random numbers of various smaller unsigned integer types by 
+/// specifying the number of bits required,  
+/// e.g. `ran_ubits(16) as u16`, etc.
+pub fn ran_ubits(bits:u8) -> u64 {
+    let rannum = xoshiu64();
+    rannum >> (64-bits)
+}
+
 /// Generate u64 random number in the interval [min,max].
 /// You can recast the result into some smaller type,
 /// when you know that it will fit in.
@@ -76,25 +84,23 @@ fn put_xoshi(seeds: &[u64;4]) {
 /// ```
 /// use ran::*;
 /// set_seeds(1234567);
-/// // Let us roll the classical die [1,6]
+/// // Roll of the classical die [1,6]:
 /// assert_eq!(6_u8,ran_urange(1u64,6u64)as u8);
 /// ```
 pub fn ran_urange(min:u64, max:u64) -> u64 {
     (xoshiu64() % (1+max-min)) + min
 }
 
-/// Get random numbers of various smaller unsigned integer types by 
-/// specifying the number of bits required,  
-/// e.g. `ran_ubits(16) as u16`, etc.
-pub fn ran_ubits(bits:i32) -> u64 {
-    let rannum = xoshiu64();
-    rannum >> (64-bits)
+/// Generate i64 random number in the interval [min:i64,max:i64], 
+/// where the interval may span zero. Must be min<max always!
+pub fn ran_irange(min:i64, max:i64) -> i64 { 
+    (xoshiu64() % (1+(max-min)as u64))as i64 + min
 }
 
-/// Transforms an f64 number in [0,1) to the range [min:f64,max:f64)
+/// Transform an f64 number in [0,1) to the range [min:f64,max:f64)
 pub fn ran_frange(rnum:f64, min:f64, max:f64) -> f64 { (max-min) * rnum + min }
 
-/// Generates f64 random number in the standardised range [0,1).
+/// Generate f64 random number in the standardised range [0,1).
 /// It can be linearly transformed to any [min,max] range.
 ///
 /// Very fast, using just three shift and XOR instructions.
@@ -118,21 +124,40 @@ pub fn ranvu64(d: usize) -> Vec<u64> {
     (0..d).map(|_|xoshiu64()).collect::<Vec<u64>>()
 }
 
-/// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
-pub fn ranvf64(d: usize) -> Vec<f64> {
-    (0..d).map(|_|ranf64()).collect::<Vec<f64>>()
-}
-
 /// Generates vector of size d, filled with random numbers in the interval [0_u8,255_u8].
 /// You can similarly recast u64 yourself to any other type.
 pub fn ranvu8(d: usize) -> Vec<u8> {
     (0..d).map(|_|ran_ubits(8)as u8).collect::<Vec<u8>>()
 }
 
+/// Generates vector of size d, filled with i64 random numbers in the interval [min,max].
+/// May include zero.
+pub fn ranvi64(d: usize, min:i64, max:i64) -> Vec<i64> {
+    (0..d).map(|_|ran_irange(min,max)).collect::<Vec<i64>>()
+}
+
+/// Generates vector of size d, filled with random numbers in the interval [0_f64,1_f64).
+pub fn ranvf64(d: usize) -> Vec<f64> {
+    (0..d).map(|_|ranf64()).collect::<Vec<f64>>()
+}
+
+
 /// Generates n vectors of size d each, filled with full range u64 random numbers.
 pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>> {
     if n * d < 1 { panic!("{} non positive dimensions", here!()) }
     (0..n).map(|_|ranvu64(d)).collect::<Vec<Vec<u64>>>()
+}
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
+pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> {
+    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
+    (0..n).map(|_|ranvu8(d)).collect::<Vec<Vec<u8>>>()
+}
+
+/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
+pub fn ranvvi64(d: usize, n: usize, min:i64, max:i64) -> Vec<Vec<i64>> {
+    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
+    (0..n).map(|_|ranvi64(d,min,max)).collect::<Vec<Vec<i64>>>()
 }
 
 /// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
@@ -141,11 +166,6 @@ pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>> {
     (0..n).map(|_|ranvf64(d)).collect::<Vec<Vec<f64>>>()
 }
 
-/// Generates n vectors of size d each, filled with random numbers in the interval [0_u8,255_u8].
-pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> {
-    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
-    (0..n).map(|_|ranvu8(d)).collect::<Vec<Vec<u8>>>()
-}
 
 /// Simple SPLITMIX64 fast generator recommended for generating the initial sequence of seeds.
 /// Assumes that SEED has been set and uses it.
