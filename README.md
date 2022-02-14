@@ -85,14 +85,14 @@ Also included are utility functions to generate vectors of random numbers of com
 /// Generates vector of size d, filled with full range u64 random numbers.
 pub fn ranvu64(d: usize) -> Vec<u64> 
 
-/// Generates vector of size d, filled with random numbers in [0_u8,255_u8].
+/// Generates vector of size d, of u8 random numbers in [0,255].
 /// This is how to recast u64 to any other unsigned int type.
 pub fn ranvu8(d: usize) -> Vec<u8> 
 
-/// Generates vector of size d, filled with i64 random numbers in [min,max].
+/// Generates vector of size d, of i64 random numbers in [min,max].
 pub fn ranvi64(d: usize, min:i64, max:i64) -> Vec<i64>
 }
-/// Generates vector of size d, filled with random numbers in [0_f64,1_f64).
+/// Generates vector of size d, of f64 random numbers in [0,1).
 pub fn ranvf64(d: usize) -> Vec<f64>
 ```
 
@@ -102,30 +102,30 @@ Utility functions to generate vectors of vectors (matrices) of random numbers of
 /// Generates n vectors of size d each, of full range u64 random numbers.
 pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>>
 
-/// Generates n vectors of size d each, of random numbers in [0_u8,255_u8].
+/// Generates n vectors of size d each, of u8 random numbers in [0,255].
 pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
 
-/// Generates n vectors of size d each, of random numbers in [0_u8,255_u8].
+/// Generates n vectors of size d each, of i64 random numbers in [min,max].
 pub fn ranvvi64(d: usize, n: usize, min:i64, max:i64) -> Vec<Vec<i64>> 
 
-/// Generates n vectors of size d each, filled with random numbers in the interval [0_f64,1_f64).
+/// Generates n vectors of size d each, of f64 random numbers in [0,1).
 pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>
 ```
 
 And these f64 alternatives, using the improved f64 generator `xoshif64()`:
 
 ```rust
-/// Generates vector of size d, of random numbers in [0_f64,1_f64).
+/// Generates vector of size d, of f64 random numbers in [0,1).
 /// Bit slower but otherwise superior to `ranvf64`.
 pub fn ranvf64_xoshi(d: usize) -> Vec<f64> 
 
-/// Generates n vectors of size d each, of random numbers in [0_f64,1_f64).
+/// Generates n vectors of size d each, of f64 random numbers in [0,1).
 pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>> 
 ```
 
 ## Release Notes (Latest First)
 
-**Version 0.2.2** Added `ran_irange, ranvi64, ranvvi64` to obtain i64 random numbers in any i64 range. Plus some appropriate tests in `tests.rs`.
+**Version 0.2.2** Added `ran_irange, ranvi64, ranvvi64`, to generate i64 random numbers in any i64 range. Plus some appropriate tests in `tests.rs`.
 
 **Version 0.2.0** Added `tests/tests.rs`. Added general purpose `xoshiu64()` which is now used to construct random numbers of all (unsigned) integer types and ranges. Reorganised, renamed and/or deleted some functions. Made the xoshi seeds also static, for ease of use. They no longer need to be explicitly passed as arguments.
 
