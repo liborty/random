@@ -88,10 +88,10 @@ pub enum Rvec {
 impl std::fmt::Display for Rvec {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { 
         match self {
-            Rvec::F64V{r:x} =>  write!(f, "{}",x.to_str()),
-            Rvec::U64V{r:x} =>  write!(f, "{}",x.to_str()),
-            Rvec::I64V{r:x} =>  write!(f, "{}",x.to_str()),
-            Rvec::U8V{r:x} =>  write!(f, "{}",x.to_str()), 
+            Rvec::F64V{v:x} =>  write!(f, "{}",x.to_str()),
+            Rvec::U64V{v:x} =>  write!(f, "{}",x.to_str()),
+            Rvec::I64V{v:x} =>  write!(f, "{}",x.to_str()),
+            Rvec::U8V{v:x} =>  write!(f, "{}",x.to_str()), 
         }
     }
 }
