@@ -79,6 +79,35 @@ pub fn set_seeds( seed:u64 )
 pub fn reset_xoshi() 
 ```
 
+There is now a polymorphic interface to simplify the usage to only two top level functions: `rannum()` and/or `rannum_in(min:f64,max:f64)`. First we have to create a variable of enum type `Rnum`, of the variant  corresponding to the end-type we wish to use. The following example shows all the main types being created:
+
+```rust
+    let rf = Rnum::newf64();
+    let ru = Rnum::newu64();
+    let ri = Rnum::newi64();
+    let ru8 = Rnum::newu8();
+```
+Then we can generate the random numbers of the appropriate type with generic `rannum()`, or alternatively random numbers within a specified range with `rannum_in(min,max)`, as follows:
+
+```rust
+    println!("Four types in ranges: {}, {}, {}, {}",
+        rf.rannum_in(0.,100.),
+        ru.rannum_in(1.,1000.),
+        ri.rannum_in(-10.,10.),
+        ru8.rannum_in(1.,6.)
+    );
+```
+As you can see, Display is implemented for Rnum. 
+
+Utility 'get' functions are provided for extracting the wrapped-up values, although that can also be done directly, using pattern extraction in an `if let` statement. They return an Option. So, for instance, `rf.getu8()` in the above example would return `None`, whereas `rf.getf64()` would return `Some(value)`, where value is of f64 type.  
+
+```rust
+    pub fn getf64(self) -> Option<f64>;
+    pub fn getu64(self) -> Option<u64>; 
+    pub fn geti64(self) -> Option<i64>; 
+    pub fn getu8(self)  -> Option<u8>;
+```
+
 Also included are utility functions to generate vectors of random numbers of common numeric end types:
 
 ```rust
@@ -123,6 +152,8 @@ pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>>
 ```
 
 ## Release Notes (Latest First)
+
+**Version 0.2.3** Added boilerplate polymorphic interface.
 
 **Version 0.2.2** Added `ran_irange, ranvi64, ranvvi64`, to generate i64 random numbers in any i64 range. Plus some appropriate tests in `tests.rs`. Restricted bits argument in `ran_ubits(bits:u8)` to u8, as it should never exceed even 63. Corrected some comments.
 

@@ -17,6 +17,66 @@ macro_rules! here {
     }};
 }
 
+// Pedestrian wrapper for static polymorphism.
+// Should be extended to cover all numeric types.
+pub enum Rnum {
+    F64{r: f64},
+    U64{r: u64},
+    I64{r: i64},
+    U8{r: u8},
+}
+
+/// Implementation of Display trait for enum Rnum.
+impl std::fmt::Display for Rnum {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Rnum::F64{r:x} =>  write!(f, "{}",x),
+            Rnum::U64{r:x} =>  write!(f, "{}",x), 
+            Rnum::I64{r:x} =>  write!(f, "{}",x), 
+            Rnum::U8{r:x} =>   write!(f, "{}",x),
+        }
+    }
+}
+
+impl Rnum {
+
+    pub fn newf64() -> Self { Rnum::F64{ r:0_f64 } }
+    pub fn newu64() -> Self { Rnum::U64{ r:0_u64 } }    
+    pub fn newi64() -> Self { Rnum::I64{ r:0_i64 } }
+    pub fn newu8() -> Self { Rnum::U8{ r:0_u8 } }
+
+    pub fn getf64(self) -> Option<f64> { 
+        if let Rnum::F64{ r:x } = self { Some(x) }
+        else { None }}
+    pub fn getu64(self) -> Option<u64> { 
+        if let Rnum::U64{ r:x } = self { Some(x) }
+        else { None }}
+    pub fn geti64(self) -> Option<i64> { 
+        if let Rnum::I64{ r:x } = self { Some(x) }
+        else { None }}
+    pub fn getu8(self) -> Option<u8> { 
+        if let Rnum::U8{ r:x } = self { Some(x) }
+        else { None }}
+    
+    pub fn rannum(&self) -> Self {
+        match self {
+            Rnum::F64{r:_} => Rnum::F64{ r:xoshif64() },
+            Rnum::U64{r:_} => Rnum::U64{ r:xoshiu64() }, 
+            Rnum::I64{r:_} => Rnum::I64{ r:xoshiu64()as i64 }, 
+            Rnum::U8{r:_} => Rnum::U8{ r:ran_ubits(8) as u8}
+        }
+    }
+
+    pub fn rannum_in(&self,min:f64,max:f64) -> Self {
+        match self {
+            Rnum::F64{r:_} => Rnum::F64{ r:ran_frange(xoshif64(), min, max)},
+            Rnum::U64{r:_} => Rnum::U64{ r:ran_urange(min as u64, max as u64)},
+            Rnum::I64{r:_} => Rnum::I64{ r:ran_irange(min as i64, max as i64)},
+            Rnum::U8{r:_} =>  Rnum::U8{ r:(ran_ubits(8)as u8) % (1_u8+(max-min)as u8) + min as u8 }
+            } 
+    }
+}
+
 /// Constant for converting u64 numbers to f64s in [0,1).
 /// It is the maximum value of mantissa plus one.
 const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53

@@ -15,6 +15,17 @@ fn rannums() {
     println!("Random bytes: {}",ranvu8(15).gr());
     println!("Matrix of integers [-10,10]:\n{}",ranvvi64(5,5,-10,10).gr());
 
+    let rf = Rnum::newf64();
+    let ru = Rnum::newu64();
+    let ri = Rnum::newi64();
+    let ru8 = Rnum::newu8();
+    println!("Four types in ranges: {}, {}, {}, {}\n",
+        rf.rannum_in(0.,100.).gr(),
+        ru.rannum_in(1.,1000.).gr(),
+        ri.rannum_in(-10.,10.).gr(),
+        ru8.rannum_in(1.,6.).gr()
+    );
+
     let d = 10000_usize;
     let n = 20_usize;
     println!( "Generating {} sets of vectors of length {} each",
