@@ -77,6 +77,25 @@ impl Rnum {
     }
 }
 
+pub enum Rvec {
+    F64V{ v: &[f64]},
+    U64V{ v: &[u64]},
+    I64V{ v: &[i64]},
+    U8V{ v: &[u8]}
+}
+
+/// Implementation of Display trait for enum Rvec.
+impl std::fmt::Display for Rvec {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { 
+        match self {
+            Rvec::F64V{r:x} =>  write!(f, "{}",x.to_str()),
+            Rvec::U64V{r:x} =>  write!(f, "{}",x.to_str()),
+            Rvec::I64V{r:x} =>  write!(f, "{}",x.to_str()),
+            Rvec::U8V{r:x} =>  write!(f, "{}",x.to_str()), 
+        }
+    }
+}
+
 /// Constant for converting u64 numbers to f64s in [0,1).
 /// It is the maximum value of mantissa plus one.
 const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53
