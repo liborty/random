@@ -29,7 +29,7 @@ fn rannums() {
     let d = 10000_usize;
     let n = 20_usize;
     println!( "Generating {} sets of vectors of length {} each",
-        n.red(), d.red() );
+        n.gr(), d.gr() );
     let mut u_timer = DevTime::new_simple();
     let mut f_timer = DevTime::new_simple();
     let mut i_timer = DevTime::new_simple(); 

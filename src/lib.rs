@@ -17,13 +17,15 @@ macro_rules! here {
     }};
 }
 
+pub struct F64V<'a>{pub v: &'a[f64]}
+
 // Pedestrian wrapper for static polymorphism.
-// Should be extended to cover all numeric types.
-pub enum Rnum {
+pub enum Rnum{
     F64{r: f64},
     U64{r: u64},
     I64{r: i64},
-    U8{r: u8},
+    U8{r: u8}
+    // Should be extended to cover all numeric types.
 }
 
 /// Implementation of Display trait for enum Rnum.
@@ -63,7 +65,7 @@ impl Rnum {
             Rnum::F64{r:_} => Rnum::F64{ r:xoshif64() },
             Rnum::U64{r:_} => Rnum::U64{ r:xoshiu64() }, 
             Rnum::I64{r:_} => Rnum::I64{ r:xoshiu64()as i64 }, 
-            Rnum::U8{r:_} => Rnum::U8{ r:ran_ubits(8) as u8}
+            Rnum::U8{r:_} => Rnum::U8{ r:ran_ubits(8) as u8} 
         }
     }
 
@@ -75,26 +77,7 @@ impl Rnum {
             Rnum::U8{r:_} =>  Rnum::U8{ r:(ran_ubits(8)as u8) % (1_u8+(max-min)as u8) + min as u8 }
             } 
     }
-}
-
-pub enum Rvec {
-    F64V{ v: &[f64]},
-    U64V{ v: &[u64]},
-    I64V{ v: &[i64]},
-    U8V{ v: &[u8]}
-}
-
-/// Implementation of Display trait for enum Rvec.
-impl std::fmt::Display for Rvec {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { 
-        match self {
-            Rvec::F64V{v:x} =>  write!(f, "{}",x.to_str()),
-            Rvec::U64V{v:x} =>  write!(f, "{}",x.to_str()),
-            Rvec::I64V{v:x} =>  write!(f, "{}",x.to_str()),
-            Rvec::U8V{v:x} =>  write!(f, "{}",x.to_str()), 
-        }
-    }
-}
+} 
 
 /// Constant for converting u64 numbers to f64s in [0,1).
 /// It is the maximum value of mantissa plus one.
