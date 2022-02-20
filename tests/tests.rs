@@ -3,33 +3,31 @@
 #[cfg(test)]
 use devtimer::DevTime;
 // use anyhow::Result;
-use indxvec::{Printing};
+// use indxvec::{Printing};
 use ran::*;
 
 #[test]
 fn rannums() {
-    set_seeds(777777_u64);
-    let dice = (0..20).map(|_| 
-        ran_urange(1u64,6u64)as u8).collect::<Vec<u8>>();
-    println!("\nDice roll: {}",dice.gr());
-    println!("Random bytes: {}",ranvu8(15).gr());
-    println!("Matrix of integers [-10,10]:\n{}",ranvvi64(5,5,-10,10).gr());
+    set_seeds(777777_u64); 
 
     let rf = Rnum::newf64();
     let ru = Rnum::newu64();
     let ri = Rnum::newi64();
     let ru8 = Rnum::newu8();
-    println!("Four types in ranges: {}, {}, {}, {}\n",
-        rf.rannum_in(0.,100.).gr(),
-        ru.rannum_in(1.,1000.).gr(),
-        ri.rannum_in(-10.,10.).gr(),
-        ru8.rannum_in(1.,6.).gr()
+    println!("Four types in ranges: {}, {}, {}, {}",
+        rf.rannum_in(0.,100.),
+        ru.rannum_in(1.,1000.),
+        ri.rannum_in(-10.,10.),
+        ru8.rannum_in(1.,6.)
     );
+    println!("20 random bytes: {}",ru8.ranvec(20));
+    println!("Dice roll: {}",ru8.ranvec_in(20,1.,6.));
+    println!("5x5 matrix of integers in range [-10,10]:\n{}",
+        stringvec(&ri.ranvv_in(5,5,-10.,10.)));
 
     let d = 10000_usize;
     let n = 20_usize;
-    println!( "Generating {} sets of vectors of length {} each",
-        n.gr(), d.gr() );
+    println!( "Generating {} sets of vectors of length {} each",n, d );
     let mut u_timer = DevTime::new_simple();
     let mut f_timer = DevTime::new_simple();
     let mut i_timer = DevTime::new_simple(); 
@@ -51,5 +49,5 @@ fn rannums() {
     let i_time = i_timer.time_in_nanos().unwrap() as f64/1e9;
 
     println!("u8time: {} f64time: {} u64time: {}",
-     u_time.gr(), f_time.gr(), i_time.gr());
+     u_time, f_time, i_time);
 }

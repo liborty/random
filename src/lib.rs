@@ -1,4 +1,4 @@
- use std::{thread_local,cell::RefCell};
+use std::{fmt::Write,thread_local,cell::RefCell};
 
 // #[macro_export]
 macro_rules! here {
@@ -17,14 +17,9 @@ macro_rules! here {
     }};
 }
 
-pub struct F64V<'a>{pub v: &'a[f64]}
-
 // Pedestrian wrapper for static polymorphism.
-pub enum Rnum{
-    F64{r: f64},
-    U64{r: u64},
-    I64{r: i64},
-    U8{r: u8}
+pub enum Rnum {
+    F64(f64), U64(u64), I64(i64), U8(u8)
     // Should be extended to cover all numeric types.
 }
 
@@ -32,52 +27,99 @@ pub enum Rnum{
 impl std::fmt::Display for Rnum {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Rnum::F64{r:x} =>  write!(f, "{}",x),
-            Rnum::U64{r:x} =>  write!(f, "{}",x), 
-            Rnum::I64{r:x} =>  write!(f, "{}",x), 
-            Rnum::U8{r:x} =>   write!(f, "{}",x),
+            Rnum::F64(x) =>  write!(f, "{}",x),
+            Rnum::U64(x) =>  write!(f, "{}",x), 
+            Rnum::I64(x) =>  write!(f, "{}",x), 
+            Rnum::U8(x) =>   write!(f, "{}",x),
         }
     }
 }
 
 impl Rnum {
-
-    pub fn newf64() -> Self { Rnum::F64{ r:0_f64 } }
-    pub fn newu64() -> Self { Rnum::U64{ r:0_u64 } }    
-    pub fn newi64() -> Self { Rnum::I64{ r:0_i64 } }
-    pub fn newu8() -> Self { Rnum::U8{ r:0_u8 } }
+    pub fn newf64() -> Self { Rnum::F64(0_f64) }
+    pub fn newu64() -> Self { Rnum::U64(0_u64) }  
+    pub fn newi64() -> Self { Rnum::I64(0_i64) }
+    pub fn newu8() -> Self { Rnum::U8(0_u8) }
 
     pub fn getf64(self) -> Option<f64> { 
-        if let Rnum::F64{ r:x } = self { Some(x) }
-        else { None }}
+        if let Rnum::F64(x) = self { Some(x) } else { None }}
     pub fn getu64(self) -> Option<u64> { 
-        if let Rnum::U64{ r:x } = self { Some(x) }
-        else { None }}
+        if let Rnum::U64(x) = self { Some(x) } else { None }}
     pub fn geti64(self) -> Option<i64> { 
-        if let Rnum::I64{ r:x } = self { Some(x) }
-        else { None }}
+        if let Rnum::I64(x) = self { Some(x) } else { None }}
     pub fn getu8(self) -> Option<u8> { 
-        if let Rnum::U8{ r:x } = self { Some(x) }
-        else { None }}
+        if let Rnum::U8(x) = self { Some(x) } else { None }}
     
     pub fn rannum(&self) -> Self {
         match self {
-            Rnum::F64{r:_} => Rnum::F64{ r:xoshif64() },
-            Rnum::U64{r:_} => Rnum::U64{ r:xoshiu64() }, 
-            Rnum::I64{r:_} => Rnum::I64{ r:xoshiu64()as i64 }, 
-            Rnum::U8{r:_} => Rnum::U8{ r:ran_ubits(8) as u8} 
+            Rnum::F64(_) => Rnum::F64(xoshif64()),
+            Rnum::U64(_) => Rnum::U64(xoshiu64()), 
+            Rnum::I64(_) => Rnum::I64(xoshiu64()as i64), 
+            Rnum::U8(_) => Rnum::U8(ran_ubits(8) as u8) 
         }
     }
 
     pub fn rannum_in(&self,min:f64,max:f64) -> Self {
         match self {
-            Rnum::F64{r:_} => Rnum::F64{ r:ran_frange(xoshif64(), min, max)},
-            Rnum::U64{r:_} => Rnum::U64{ r:ran_urange(min as u64, max as u64)},
-            Rnum::I64{r:_} => Rnum::I64{ r:ran_irange(min as i64, max as i64)},
-            Rnum::U8{r:_} =>  Rnum::U8{ r:(ran_ubits(8)as u8) % (1_u8+(max-min)as u8) + min as u8 }
-            } 
+            Rnum::F64(_) => Rnum::F64(ran_frange(xoshif64(), min, max)),
+            Rnum::U64(_) => Rnum::U64(ran_urange(min as u64, max as u64)),
+            Rnum::I64(_) => Rnum::I64(ran_irange(min as i64, max as i64)),
+            Rnum::U8(_) =>  Rnum::U8((ran_ubits(8)as u8) % 
+                (1_u8+(max-min)as u8) + (min as u8))
+        }
+    } 
+
+    pub fn ranvec(&self,d:usize) -> Rvec {
+        match self {
+            Rnum::F64(_) => Rvec::F64(ranvf64_xoshi(d)),
+            Rnum::U64(_) => Rvec::U64(ranvu64(d)),
+            Rnum::I64(_) => Rvec::I64((0..d).map(|_|xoshiu64()as i64).collect::<Vec<i64>>()),
+            Rnum::U8(_) =>  Rvec::U8(ranvu8(d))
+        }
+        
     }
-} 
+
+    pub fn ranvec_in(&self,d:usize,min:f64,max:f64) -> Rvec {
+        match self {
+            Rnum::F64(_) => Rvec::F64((0..d).map(|_|
+                ran_frange(xoshif64(), min, max)).collect()),
+            Rnum::U64(_) => Rvec::U64((0..d).map(|_|
+                ran_urange(min as u64, max as u64)).collect()),
+            Rnum::I64(_) => Rvec::I64((0..d).map(|_|
+                ran_irange(min as i64,max as i64)).collect()),
+            Rnum::U8(_) =>  Rvec::U8((0..d).map(|_|
+                ran_urange(min as u64, max as u64)as u8).collect())
+        }
+        
+    }
+
+    pub fn ranvv(&self,d:usize,n:usize) -> Vec<Rvec> { 
+        (0..n).map(|_|self.ranvec(d)).collect()      
+    }
+
+    pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Vec<Rvec> { 
+        (0..n).map(|_|self.ranvec_in(d,min,max)).collect()      
+    }
+}
+
+pub fn stringvec<T>(x:&[T]) -> String where T: std::fmt::Display {
+    x.iter().fold(String::from("[ "), |mut s, item| {
+        write!(s, "{} ", item).ok();  s  }) + "]"
+}
+
+pub enum Rvec { 
+    F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U8(Vec<u8>)
+}
+/// Implementation of Display trait for enum Rvec.
+impl std::fmt::Display for Rvec {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "{}",
+       if let Rvec::F64(x) = self { stringvec(x) } 
+       else if let Rvec::U64(x) = self { stringvec(x) } 
+       else if let Rvec::I64(x) = self { stringvec(x) } 
+       else if let Rvec::U8(x) = self { stringvec(x) } else { "none".to_string() })
+    }
+}
 
 /// Constant for converting u64 numbers to f64s in [0,1).
 /// It is the maximum value of mantissa plus one.
@@ -94,8 +136,9 @@ thread_local!(
     static X3: RefCell<u64> = RefCell::new(444444444_u64);
 );
 
-/// Use this function to initialise SEED and also xoshi seeds X0-X3. 
-/// The supplied value must be > 0, otherwise nothing will be changed.
+/// This function initialises SEED and xoshi seeds X0-X3. 
+/// The supplied value must be > 0, 
+/// otherwise seeds will remain unchanged.
 pub fn set_seeds( seed:u64 ) { 
     if seed == 0 { return };
     SEED.with(|s| *s.borrow_mut() = seed);    
@@ -106,7 +149,7 @@ pub fn set_seeds( seed:u64 ) {
 fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
 fn put_seed(seed:u64) { SEED.with(|s| *s.borrow_mut() = seed) }
 
-/// Reset xoshi seeds without changing the main SEED.
+/// Resets xoshi seeds without changing the main SEED.
 /// There is usually no need to reset any already running seeds.
 pub fn reset_xoshi() { 
     let seeds = [ splitmix(), splitmix(), splitmix(), splitmix() ];
