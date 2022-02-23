@@ -1,140 +1,26 @@
-use std::{fmt::Write,thread_local,cell::RefCell};
+pub mod impls;
+pub mod secondary;
 
-// #[macro_export]
-macro_rules! here {
-    () => {{
-        fn f() {}
-        fn type_name_of<T>(_: T) -> &'static str {
-            std::any::type_name::<T>()
-        }
-        let name = type_name_of(f);
-        format!(
-            "\n\x1B[01;31m{}:{} {}\x1B[0m",
-            file!(),
-            line!(),
-            &name[..name.len() - 3]
-        )
-    }};
-}
+use crate::secondary::{SEED,MANTISSA_MAX,get_seed,put_seed,get_xoshi,put_xoshi,xoshi_step};
 
-// Pedestrian wrapper for static polymorphism.
+/// Wrapper for enum polymorphism - single value
 pub enum Rnum {
     F64(f64), U64(u64), I64(i64), U8(u8)
     // Should be extended to cover all numeric types.
 }
 
-/// Implementation of Display trait for enum Rnum.
-impl std::fmt::Display for Rnum {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Rnum::F64(x) =>  write!(f, "{}",x),
-            Rnum::U64(x) =>  write!(f, "{}",x), 
-            Rnum::I64(x) =>  write!(f, "{}",x), 
-            Rnum::U8(x) =>   write!(f, "{}",x),
-        }
-    }
-}
-
-impl Rnum {
-    pub fn newf64() -> Self { Rnum::F64(0_f64) }
-    pub fn newu64() -> Self { Rnum::U64(0_u64) }  
-    pub fn newi64() -> Self { Rnum::I64(0_i64) }
-    pub fn newu8() -> Self { Rnum::U8(0_u8) }
-
-    pub fn getf64(self) -> Option<f64> { 
-        if let Rnum::F64(x) = self { Some(x) } else { None }}
-    pub fn getu64(self) -> Option<u64> { 
-        if let Rnum::U64(x) = self { Some(x) } else { None }}
-    pub fn geti64(self) -> Option<i64> { 
-        if let Rnum::I64(x) = self { Some(x) } else { None }}
-    pub fn getu8(self) -> Option<u8> { 
-        if let Rnum::U8(x) = self { Some(x) } else { None }}
-    
-    pub fn rannum(&self) -> Self {
-        match self {
-            Rnum::F64(_) => Rnum::F64(xoshif64()),
-            Rnum::U64(_) => Rnum::U64(xoshiu64()), 
-            Rnum::I64(_) => Rnum::I64(xoshiu64()as i64), 
-            Rnum::U8(_) => Rnum::U8(ran_ubits(8) as u8) 
-        }
-    }
-
-    pub fn rannum_in(&self,min:f64,max:f64) -> Self {
-        match self {
-            Rnum::F64(_) => Rnum::F64(ran_frange(xoshif64(), min, max)),
-            Rnum::U64(_) => Rnum::U64(ran_urange(min as u64, max as u64)),
-            Rnum::I64(_) => Rnum::I64(ran_irange(min as i64, max as i64)),
-            Rnum::U8(_) =>  Rnum::U8((ran_ubits(8)as u8) % 
-                (1_u8+(max-min)as u8) + (min as u8))
-        }
-    } 
-
-    pub fn ranvec(&self,d:usize) -> Rvec {
-        match self {
-            Rnum::F64(_) => Rvec::F64(ranvf64_xoshi(d)),
-            Rnum::U64(_) => Rvec::U64(ranvu64(d)),
-            Rnum::I64(_) => Rvec::I64((0..d).map(|_|xoshiu64()as i64).collect::<Vec<i64>>()),
-            Rnum::U8(_) =>  Rvec::U8(ranvu8(d))
-        }
-        
-    }
-
-    pub fn ranvec_in(&self,d:usize,min:f64,max:f64) -> Rvec {
-        match self {
-            Rnum::F64(_) => Rvec::F64((0..d).map(|_|
-                ran_frange(xoshif64(), min, max)).collect()),
-            Rnum::U64(_) => Rvec::U64((0..d).map(|_|
-                ran_urange(min as u64, max as u64)).collect()),
-            Rnum::I64(_) => Rvec::I64((0..d).map(|_|
-                ran_irange(min as i64,max as i64)).collect()),
-            Rnum::U8(_) =>  Rvec::U8((0..d).map(|_|
-                ran_urange(min as u64, max as u64)as u8).collect())
-        }
-        
-    }
-
-    pub fn ranvv(&self,d:usize,n:usize) -> Vec<Rvec> { 
-        (0..n).map(|_|self.ranvec(d)).collect()      
-    }
-
-    pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Vec<Rvec> { 
-        (0..n).map(|_|self.ranvec_in(d,min,max)).collect()      
-    }
-}
-
-pub fn stringvec<T>(x:&[T]) -> String where T: std::fmt::Display {
-    x.iter().fold(String::from("[ "), |mut s, item| {
-        write!(s, "{} ", item).ok();  s  }) + "]"
-}
-
-pub enum Rvec { 
+/// Wrapper for enum polymorphism - vectors
+pub enum Rv { 
     F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U8(Vec<u8>)
 }
-/// Implementation of Display trait for enum Rvec.
-impl std::fmt::Display for Rvec {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-    write!(f, "{}",
-       if let Rvec::F64(x) = self { stringvec(x) } 
-       else if let Rvec::U64(x) = self { stringvec(x) } 
-       else if let Rvec::I64(x) = self { stringvec(x) } 
-       else if let Rvec::U8(x) = self { stringvec(x) } else { "none".to_string() })
-    }
+
+/// Wrapper for enum polymorphism - vectors of vectors
+pub enum Rvv { 
+    F64(Vec<Vec<f64>>),
+    U64(Vec<Vec<u64>>),
+    I64(Vec<Vec<i64>>),
+    U8(Vec<Vec<u8>>)
 }
-
-/// Constant for converting u64 numbers to f64s in [0,1).
-/// It is the maximum value of mantissa plus one.
-const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53
-
-// SEED is used by `ranf64` and/or `splitmix` algorithms
-// X0-X3 is used by all xoshiro type algorithms
-thread_local!(
-    // initialise SEED to a default value, in case user omits to set it
-    static SEED: RefCell<u64> = RefCell::new(555555555_u64);
-    static X0: RefCell<u64> = RefCell::new(111111111_u64);
-    static X1: RefCell<u64> = RefCell::new(222222222_u64);
-    static X2: RefCell<u64> = RefCell::new(333333333_u64);
-    static X3: RefCell<u64> = RefCell::new(444444444_u64);
-);
 
 /// This function initialises SEED and xoshi seeds X0-X3. 
 /// The supplied value must be > 0, 
@@ -145,10 +31,6 @@ pub fn set_seeds( seed:u64 ) {
     reset_xoshi();
 }
 
-/// private functions to get and put the SEED values
-fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
-fn put_seed(seed:u64) { SEED.with(|s| *s.borrow_mut() = seed) }
-
 /// Resets xoshi seeds without changing the main SEED.
 /// There is usually no need to reset any already running seeds.
 pub fn reset_xoshi() { 
@@ -156,31 +38,13 @@ pub fn reset_xoshi() {
     put_xoshi(&seeds);
 }
 
-/// Private function to load the xoshiro seeds into an array
-/// so as not to have to pass them round everywhere as an `&mut [u64;4]` argument
-#[inline]
-fn get_xoshi() -> [u64;4] {
-    [ X0.with(|s| *s.borrow()),
-      X1.with(|s| *s.borrow()),
-      X2.with(|s| *s.borrow()),
-      X3.with(|s| *s.borrow()) ]
-}
-/// Private function to put the xoshiro seeds back from an array
-#[inline]
-fn put_xoshi(seeds: &[u64;4]) {
-    X0.with(|s| *s.borrow_mut() = seeds[0]);
-    X1.with(|s| *s.borrow_mut() = seeds[1]); 
-    X2.with(|s| *s.borrow_mut() = seeds[2]); 
-    X3.with(|s| *s.borrow_mut() = seeds[3]);
-}
-
 /// Get random numbers of various smaller unsigned integer types by 
 /// specifying the number of bits required,  
 /// e.g. `ran_ubits(16) as u16`, etc.
-pub fn ran_ubits(bits:u8) -> u64 {
-    let rannum = xoshiu64();
-    rannum >> (64-bits)
-}
+pub fn ran_ubits(bits:u8) -> u64 {  xoshiu64() >> (64-bits) }
+
+/// i64 random number by simply casting from xoshiu64
+pub fn ran_i64() -> i64 { xoshiu64() as i64 }
 
 /// Generate u64 random number in the interval [min,max].
 /// You can recast the result into some smaller type,
@@ -223,7 +87,6 @@ pub fn ranf64() -> f64 {
     (seed >> 11) as f64 / MANTISSA_MAX
 }
 
-
 /// Generates vector of size d, filled with full range u64 random numbers.
 pub fn ranvu64(d: usize) -> Vec<u64> {
     (0..d).map(|_|xoshiu64()).collect::<Vec<u64>>()
@@ -235,9 +98,14 @@ pub fn ranvu8(d: usize) -> Vec<u8> {
     (0..d).map(|_|ran_ubits(8)as u8).collect::<Vec<u8>>()
 }
 
+/// Generates vector of size d, of i64 random numbers.
+pub fn ranvi64(d: usize) -> Vec<i64> {
+    (0..d).map(|_|ran_i64()).collect::<Vec<i64>>()
+}
+
 /// Generates vector of size d, of i64 random numbers in the interval [min,max].
 /// May include zero.
-pub fn ranvi64(d: usize, min:i64, max:i64) -> Vec<i64> {
+pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Vec<i64> {
     (0..d).map(|_|ran_irange(min,max)).collect::<Vec<i64>>()
 }
 
@@ -245,7 +113,6 @@ pub fn ranvi64(d: usize, min:i64, max:i64) -> Vec<i64> {
 pub fn ranvf64(d: usize) -> Vec<f64> {
     (0..d).map(|_|ranf64()).collect::<Vec<f64>>()
 }
-
 
 /// Generates n vectors of size d each, of full range u64 random numbers.
 pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>> {
@@ -260,9 +127,15 @@ pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> {
 }
 
 /// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
-pub fn ranvvi64(d: usize, n: usize, min:i64, max:i64) -> Vec<Vec<i64>> {
+pub fn ranvvi64(d: usize, n: usize) -> Vec<Vec<i64>> {
     if n * d < 1 { panic!("{} non positive dimensions", here!()) }
-    (0..n).map(|_|ranvi64(d,min,max)).collect::<Vec<Vec<i64>>>()
+    (0..n).map(|_|ranvi64(d)).collect::<Vec<Vec<i64>>>()
+}
+
+/// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
+pub fn ranvvi64_in(d: usize, n: usize, min:i64, max:i64) -> Vec<Vec<i64>> {
+    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
+    (0..n).map(|_|ranvi64_in(d,min,max)).collect::<Vec<Vec<i64>>>()
 }
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
@@ -270,7 +143,6 @@ pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>> {
     if n * d < 1 { panic!("{} non positive dimensions", here!()) }
     (0..n).map(|_|ranvf64(d)).collect::<Vec<Vec<f64>>>()
 }
-
 
 /// Simple SPLITMIX64 fast generator recommended for generating the initial sequence of seeds.
 /// Assumes that SEED has been set and uses it.
@@ -305,17 +177,6 @@ pub fn xoshif64() -> f64 {
     xoshi_step(&mut s);
     put_xoshi(&s);
     result
-}
-
-#[inline]
-fn xoshi_step(s: &mut[u64;4]) {    
-	let t = s[1] << 17;
-	s[2] ^= s[0];
-	s[3] ^= s[1];
-	s[1] ^= s[2];
-	s[0] ^= s[3];
-	s[2] ^= t;
-	s[3] =  s[3].rotate_left(45);
 }
 
 /// Generates vector of size d, of f64 random numbers in [0,1).

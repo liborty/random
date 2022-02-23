@@ -26,6 +26,155 @@ It is highly recommended to run `tests/tests.rs` with examples of usage. Here is
         stringvec(&ri.ranvv_in(5,5,-10.,10.)));
 ```
 
+## Getting Started
+
+`use ran::*;`
+
+These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different,  random sequence. Of course, the same seed will always produce the same sequence but this is actually useful for exact testing comparisons.
+
+```rust
+/// This function initialises SEED and xoshi seeds X0-X3. 
+/// The supplied value must be > 0, 
+/// otherwise seeds will remain unchanged.
+pub fn set_seeds( seed:u64 )
+
+/// Resets xoshi seeds without changing the main SEED.
+/// There is usually no need to reset seeds when they are 
+/// already running.
+pub fn reset_xoshi() 
+```
+
+## Generic Usage
+
+Polymorphic interface avoids having to use specific functions for specific primitive types. Those low level typed functions still exist and can be used directly as well.
+
+ To use the generics, it is necessary to create an instance of enum type `Rnum`, of the variant  corresponding to the end-type of the random numbers to be generated. Thus Rnum is just a wrapper, serving to communicate to the generic method(s) information about the type of the (random) numbers wanted. The following example shows variables of all the main type variants being initialised:
+
+```rust
+    let rf = Rnum::newf64();
+    let ru = Rnum::newu64();
+    let ri = Rnum::newi64();
+    let ru8 = Rnum::newu8();
+```
+Then we can apply common generic method(s) to all such variables to generate the required random numbers. They are returned again wrapped inside an Rnum. For example:
+
+```rust
+    println!("Four types in ranges: {}, {}, {}, {}",
+        rf.rannum_in(0.,100.),
+        ru.rannum_in(1.,1000.),
+        ri.rannum_in(-10.,10.),
+        ru8.rannum_in(1.,6.)
+    );
+```
+
+`Display` has been implemented for `Rnum`, so they will all print.
+
+Returned Rnum values can be pattern extracted for use like this:
+
+```rust
+use anyhow::{Result,bail};
+
+if let Rnum::F64(x) = rf { do_something_with_f64(x) }
+else {  bail!("failed to extract f64!") };
+```
+The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, it can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement rather than as an expression. In this case, should this particular extraction attempt fail, its associated action will be just quietly skipped:
+
+```rust
+if let Rv::U8(vecu8) = ru8.ranv_in(20,1.,6.) {
+    println!("Dice roll: {}",stringv(&vecu8)) };
+```
+
+The above example illustrates the use of another enum type `Rv`, used for returning whole vectors of random numbers. Its variants are extracted in the same way. There is also `Rvv` for returning vectors of vectors of random numbers:
+
+```rust
+// vec of vecs using ranvv_in(d,n,min,max) and Display of Rvv
+println!("5x5 matrix of integers in range [-10,10]:\n{}",
+    ri.ranvv_in(5,5,-10.,10.));
+```
+`stringv` and `stringvv` are just utility functions to enable display of ordinary vectors and vectors of vectors.
+
+## Generic Methods (all implemented for Rnum)
+
+The results wrapped within all three return types: `Rnum,Rv,Rvv` are to be pattern extracted with 'if let' as shown above. The Self here is Rnum.
+    
+`pub fn newf64() -> Self`  
+`pub fn newu64() -> Self`    
+`pub fn newi64() -> Self`   
+`pub fn newu8() -> Self`  
+    
+
+`pub fn rannum(&self) -> Self`  
+returns a wrapped random number of one of the main types in  maximum range allowed by the width of the type. The standardised range [0,1) is used for f64.
+
+`pub fn rannum_in(&self,min:f64,max:f64) -> Self`  
+returns a wrapped random number of one of the main types in the range min,max (specified as f64s for commonality). The range should not exceed the width of the type, e.g. 0.,255. for u8. Nor should it be negative for unsigned types.
+
+`pub fn ranv(&self,d:usize) -> Rv`  
+returns a wrapped Vec of length d filled with random numbers of one  of the main primitive types. Note that the whole Vec is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
+
+`pub fn ranv_in(&self,d:usize,min:f64,max:f64) -> Rv`  
+same as `ranv` but using the specified range for the random values.
+
+`pub fn ranvv(&self,d:usize,n:usize) -> Rvv`  
+returns a wrapped `<Vec<Vec<_>>>` consisting of n vectors, each of length d, filled with random numbers of one the main primitive types. Note that only the whole VecVec is wrapped, not each individual vector or element of it. Thus only one pattern extraction is needed.
+
+`pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Rvv`  
+same as `ranvv` but using the specified range for the random values.
+
+There is no need to read beyond this point for normal daily use of this crate. However, there may be special circumstances, when using directly one of the typed functions is more convenient. Such as when needing only one specific end type. Another circumstance may be when wanting to use specific random number generator(s), different to the default ones used within the above methods.
+
+## Explicitly Typed Functions
+
+Utility functions to directly generate vectors of random numbers of common numeric end types:
+
+```rust
+/// Generates vector of size d, 
+/// filled with full range u64 random numbers.
+pub fn ranvu64(d: usize) -> Vec<u64> 
+
+/// Generates vector of size d, of u8 random numbers in [0,255].
+pub fn ranvu8(d: usize) -> Vec<u8> 
+
+/// Generates vector of size d, of full range i64 random numbers.
+pub fn ranvi64(d: usize) -> Vec<i64>
+
+/// Generates vector of size d, of f64 random numbers in [0,1).
+pub fn ranvf64(d: usize) -> Vec<f64>
+```
+
+Utility functions to generate vectors of vectors (matrices) of random numbers of common numeric end types:
+
+```rust
+/// Generates n vectors of size d each,
+/// filled with full range u64 random numbers.
+pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>>
+
+/// Generates n vectors of size d each, of u8 random numbers in [0,255].
+pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
+
+/// Generates n vectors of size d each, of full range i64 random numbers.
+pub fn ranvvi64(d: usize, n: usize) -> Vec<Vec<i64>> 
+
+/// Generates vector of size d, of i64 random numbers 
+/// in the interval [min,max]. May include zero.
+pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Vec<i64> {
+
+/// Generates n vectors of size d each, of f64 random numbers in [0,1).
+pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>
+```
+
+And these f64 alternatives, using the improved f64 generator `xoshif64()`:
+
+```rust
+/// Generates vector of size d, of f64 random numbers in [0,1).
+/// Bit slower but otherwise superior to `ranvf64`.
+pub fn ranvf64_xoshi(d: usize) -> Vec<f64> 
+
+/// Generates n vectors of size d each, of f64 random numbers in [0,1).
+pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>> 
+```
+
+
 ## Low Level Integer Algorithms
 
 * `xoshiu64()` generates u64 random numbers in full 64 bit range and 2^256 state space. That means the sequence is not going to repeat for a very long time. This algorithm is used to construct random numbers of all (unsigned) integer types and ranges up to 64 bits.
@@ -60,103 +209,9 @@ There is also a function that transforms any f64 number in standard range [0,1) 
 pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64 
 ```
 
-## Usage
-
-`use ran::*;`
-
-These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different,  random sequence. Of course, the same seed will always produce the same sequence but this is actually useful for exact testing comparisons.
-
-```rust
-/// This function initialises SEED and xoshi seeds X0-X3. 
-/// The supplied value must be > 0, 
-/// otherwise seeds will remain unchanged.
-pub fn set_seeds( seed:u64 )
-
-/// Resets xoshi seeds without changing the main SEED.
-/// There is usually no need to reset seeds when they are 
-/// already running.
-pub fn reset_xoshi() 
-```
-
-## Types
-
-There is a polymorphic interface to simplify the usage in most possible situations to only one of six top level functions. 
-
- First create an instance of type `Rnum`, of the variant  corresponding to the end-type of the random numbers to be generated. Rnum is just an enum wrapper, communicating to the generic generating methods information about the types of the (random) numbers wanted. The following example shows variables of all the main type variants being declared:
-
-```rust
-    let rf = Rnum::newf64();
-    let ru = Rnum::newu64();
-    let ri = Rnum::newi64();
-    let ru8 = Rnum::newu8();
-```
-Then we apply generic methods to these variables to generate the required random numbers of the appropriate type(s). For example:
-
-```rust
-    println!("Four types in ranges: {}, {}, {}, {}",
-        rf.rannum_in(0.,100.),
-        ru.rannum_in(1.,1000.),
-        ri.rannum_in(-10.,10.),
-        ru8.rannum_in(1.,6.)
-    );
-```
-As you can see, Display is implemented for Rnum. 
-
-Utility 'get' functions are provided for extracting the wrapped-up values, although that can also be done directly, using pattern extraction with an `if let`. They return Options. So, for instance, `rf.getu8()` in the above example would return `None`, because `rf` is holding an f64 value. Whereas `rf.getf64()` would return `Some(value)`, of f64 type.  
-
-```rust
-    pub fn getf64(self) -> Option<f64>;
-    pub fn getu64(self) -> Option<u64>; 
-    pub fn geti64(self) -> Option<i64>; 
-    pub fn getu8(self)  -> Option<u8>;
-```
-
-## The Main Methods
-
-Also included are utility functions to generate vectors of random numbers of common numeric end types:
-
-```rust
-/// Generates vector of size d, filled with full range u64 random numbers.
-pub fn ranvu64(d: usize) -> Vec<u64> 
-
-/// Generates vector of size d, of u8 random numbers in [0,255].
-pub fn ranvu8(d: usize) -> Vec<u8> 
-
-/// Generates vector of size d, of i64 random numbers in [min,max].
-pub fn ranvi64(d: usize, min:i64, max:i64) -> Vec<i64>
-}
-/// Generates vector of size d, of f64 random numbers in [0,1).
-pub fn ranvf64(d: usize) -> Vec<f64>
-```
-
-Utility functions to generate vectors of vectors (matrices) of random numbers of common numeric end types:
-
-```rust
-/// Generates n vectors of size d each, of full range u64 random numbers.
-pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>>
-
-/// Generates n vectors of size d each, of u8 random numbers in [0,255].
-pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
-
-/// Generates n vectors of size d each, of i64 random numbers in [min,max].
-pub fn ranvvi64(d: usize, n: usize, min:i64, max:i64) -> Vec<Vec<i64>> 
-
-/// Generates n vectors of size d each, of f64 random numbers in [0,1).
-pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>
-```
-
-And these f64 alternatives, using the improved f64 generator `xoshif64()`:
-
-```rust
-/// Generates vector of size d, of f64 random numbers in [0,1).
-/// Bit slower but otherwise superior to `ranvf64`.
-pub fn ranvf64_xoshi(d: usize) -> Vec<f64> 
-
-/// Generates n vectors of size d each, of f64 random numbers in [0,1).
-pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>> 
-```
-
 ## Release Notes (Latest First)
+
+**Version 0.3.0** Substantial revision. Completed the generic interface. Renamed some types and functions. Created two separate source modules to clean up `lib.rs`. Removed dev-dependence on indxvec.
 
 **Version 0.2.4** Extended the interface to vecs and vecs of vecs, in full range and in given range.
 
