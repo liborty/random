@@ -22,8 +22,7 @@ It is highly recommended to run `tests/tests.rs` with examples of usage. Here is
 ```rust
     println!("20 random bytes: {}",ru8.ranvec(20));
     println!("Dice roll: {}",ru8.ranvec_in(20,1.,6.));
-    println!("5x5 matrix of integers in range [-10,10]:\n{}",
-        stringvec(&ri.ranvv_in(5,5,-10.,10.)));
+    println!("5x5 matrix of integers:\n{}",ri.ranvv_in(5,5,-10.,10.));
 ```
 
 ## Getting Started
