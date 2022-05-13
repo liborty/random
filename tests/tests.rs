@@ -15,23 +15,25 @@ fn rannums() {
     let ri = Rnum::newi64();
     let ru8 = Rnum::newu8();
 
+    for _i in 1..5 {
     println!("Four types in ranges: {}, {}, {}, {}",
         rf.rannum_in(0.,100.),
         ru.rannum_in(1.,1000.),
         ri.rannum_in(-10.,10.),
         ru8.rannum_in(1.,6.)
     );
+}
 
-    println!("10 random bytes: {}",ru8.ranv(10));
+    println!("\n10 random bytes: {}",ru8.ranv(10));
 
     // this is expanded here just to demonstrate pattern extraction
     // of the wrapped Vec<u8>, which is not normally needed for just printing it: 
     // println!("Dice roll: {}",ru8.ranvec_in(20,1.,6.)};
     if let Rv::U8(vecu8) = ru8.ranv_in(20,1.,6.) {
-       println!("Dice roll: {}",stringv(&vecu8)) };
+       println!("\nDice roll: {}",stringv(&vecu8)) };
 
     // vec of vecs using ranvv_in(d,n,min,max)
-    println!("5x5 matrix of integers in range [-10,10]:\n{}",
+    println!("\n5x5 matrix of integers in range [-10,10]:\n{}",
         ri.ranvv_in(5,5,-10.,10.))
 }
 
