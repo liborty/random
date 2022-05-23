@@ -9,7 +9,7 @@
 
 The rationale for this crate is to generate good quality random numbers fast, simply and with a minimal footprint.
 
-Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing etc ( looking at the 'other' crate: `rand` ).
+Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing ( looking at the 'other' crate: `rand` ).
 
 In contradistinction, this crate is lightweight and it has no dependencies.
 
@@ -35,7 +35,7 @@ These algorithms use thread safe static seeds. It is strongly recommended to ini
 
 ```rust
 /// This function initialises SEED and xoshi seeds X0-X3. 
-/// The supplied value must be > 0, 
+/// The supplied value must be non zero, 
 /// otherwise seeds will remain unchanged.
 pub fn set_seeds( seed:u64 )
 
@@ -72,14 +72,16 @@ pub enum Rvv {
 }
 ```
 
- To use the generics, we generate an instance of one of these types. So, for single random numbers, it will be enum type `Rnum`, of the variant  corresponding to the end-type of the random numbers to be generated. Thus `Rnum` is just a wrapper, serving to communicate to the generic method(s) information about the actual type of the (random) numbers wanted. The following example shows variables of all the main types being declared:
+ To use the generics, we generate an instance of one of these types. For single random numbers, it will be enum type `Rnum`, of the variant  corresponding to the end-type of the random numbers to be generated. Thus `Rnum` is just a wrapper, serving to communicate to the generic method(s) information about the actual type of the (random) numbers wanted. The following example shows variables of all the main types being declared:
+
 ```rust
 let rf = Rnum::newf64();
 let ru = Rnum::newu64();
 let ri = Rnum::newi64();
 let ru8 = Rnum::newu8();
 ```
-We can then apply common generic method(s) to all such variables to generate the required random numbers. The results are again wrapped inside an Rnum type. For example:
+
+We can then apply common generic method(s) to all such variables to generate the required random numbers. The results are again wrapped inside an `Rnum` type. For example:
 
 ```rust
 println!("Random numbers in specified ranges: {}, {}, {}, {}",
@@ -99,7 +101,8 @@ use anyhow::{Result,bail};
 if let Rnum::F64(x) = rf { utilise the x:f64 value }
 else {  bail!("rf does not hold value of f64 type!") };
 ```
-The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, it can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, its associated action will be just quietly skipped:
+
+The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, its associated action will be just quietly skipped:
 
 ```rust
 let uvec:Rv = ru8.ranv_in(20,1.,6.); // wrapped vec of random u8 values
@@ -107,8 +110,7 @@ if let Rv::U8(vx) = uvec {
     println!("Dice roll sequence: {}", stringv(&vx)) };
 ```
 
-This example illustrates the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way.  
-Here helper function `stringv` (from module secondary.rs) converts the extracted vector to a String to facilitate its printing. 
+This example illustrated the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Here helper function `stringv` (from module secondary.rs) converts the extracted vector to a String to facilitate its printing. 
 
 There is also enum type `Rvv` for returning vectors of vectors of random numbers:
 
@@ -119,9 +121,9 @@ println!(
     ri.ranvv_in(5,5,-10.,10.)
 );
 ```
-`stringvv` is another utility function to enable display of vectors of vectors. We did not need to use it here since this time we did not extract the wrapped value (vector of vectors) and `Dislay` is implemented for `Rvv` type.
+`stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Dislay` is implemented for `Rvv` type and we did not bother to extract the wrapped value (vector of vectors).
 
-The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with 'if let'. 
+The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`. 
 
 ## Generic Methods
 
@@ -134,27 +136,27 @@ pub fn newi64() -> Self
 pub fn newu8() -> Self  
 ```
 
-The following methods are all implemented for `Rnum`, that means invoked on `Rnum` type variable. Even when generating `Rv` or `Rvv` type results. `Rnum` type input variable (self) in all cases serves just to inform the generic method about the numeric type required for the generated values:
+The following methods are all implemented for `Rnum`, that means invoked on `Rnum` type variable. Even when generating `Rv` or `Rvv` type results. `Rnum` type input variable (`self`) in all cases serves just to inform the generic method about the numeric type required for the generated values:
 
 `pub fn rannum(&self) -> Self`  
-returns a wrapped random number of one of the main types in  maximum range allowed by the width of the type. The standardised range [0,1) is used for f64.
+returns a wrapped random number of one of the main types in  maximum range allowed by the width of the type. The standardised range [0,1) is used for `f64`.
 
 `pub fn rannum_in(&self,min:f64,max:f64) -> Self`  
-returns a wrapped random number of one of the main types in the range min,max (min,max are  always f64s for commonality). The range should not exceed the width of the type, e.g. 0.,255. for u8. Nor should it be negative for unsigned types.
+returns a wrapped random number of one of the main types in the range min,max (min,max are  always `f64`s for commonality). The range should not exceed the width of the type, e.g. 0.,255. for `u8`. Nor should it be negative for unsigned types.
 
 `pub fn ranv(&self,d:usize) -> Rv`  
-returns a wrapped Vec of length d filled with random numbers of one  of the main primitive types. Note that the whole Vec is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
+returns a wrapped Vec of length d filled with random numbers of one  of the main primitive types. Note that the whole `Vec` is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
 
 `pub fn ranv_in(&self,d:usize,min:f64,max:f64) -> Rv`  
 same as `ranv` but using the specified range for the random values.
 
 `pub fn ranvv(&self,d:usize,n:usize) -> Rvv`  
-returns a wrapped `<Vec<Vec<_>>>` consisting of n vectors, each of length d, filled with random numbers of one of the main primitive types. Note that only the whole VecVec is wrapped, not each individual vector or element of it. Thus only one pattern extraction is needed.
+returns a wrapped `Vec<Vec<_>>` consisting of n vectors, each of length d, filled with random numbers of one of the main primitive types. Note that only the whole result is wrapped, not each individual vector or element of it. Thus, again, only one pattern extraction is needed.
 
 `pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Rvv`  
 same as `ranvv` but using the specified range for the random values.
 
-There is no need to read beyond this point for normal daily use of this crate. However, there may be special circumstances, when using directly one of the typed functions is more convenient. Such as when needing only one specific end type. Another circumstance may be when wanting to use specific random number generator(s), different to the default ones used within the above methods. (There are several provided).
+There is no need to read beyond this point for normal daily use of this crate. However, there may be special circumstances, when using directly one of the typed functions is more convenient. Such as when needing only one specific end type. Another circumstance may be when wanting to use specific random number generator(s), different to the default ones used within the above methods. (Several are provided).
 
 ## Explicitly Typed Functions
 
