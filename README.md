@@ -54,13 +54,13 @@ In `lib.rs` we define three polymorphic (generic types):
 ```rust
 /// Wrapper for enum polymorphism - single value
 pub enum Rnum {
-    F64(f64), U64(u64), I64(i64), U8(u8)
-    // Should be extended to cover all numeric types.
+    F64(f64), U64(u64), I64(i64), U16(u16), U8(u8)
+    // Should be extended to cover all numeric types?
 }
 
 /// Wrapper for enum polymorphism - vectors
 pub enum Rv { 
-    F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U8(Vec<u8>)
+    F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U16(Vec<u16>), U8(Vec<u8>)
 }
 
 /// Wrapper for enum polymorphism - vectors of vectors
@@ -68,6 +68,7 @@ pub enum Rvv {
     F64(Vec<Vec<f64>>),
     U64(Vec<Vec<u64>>),
     I64(Vec<Vec<i64>>),
+    U16(Vec<Vec<i16>>),
     U8(Vec<Vec<u8>>)
 }
 ```
@@ -78,6 +79,7 @@ pub enum Rvv {
 let rf = Rnum::newf64();
 let ru = Rnum::newu64();
 let ri = Rnum::newi64();
+let ru16 = Rnum::newu16();
 let ru8 = Rnum::newu8();
 ```
 
@@ -88,6 +90,7 @@ println!("Random numbers in specified ranges: {}, {}, {}, {}",
     rf.rannum_in(0.,100.),  // wrapped f64 value
     ru.rannum_in(1.,1000.), // wrapped u64, 1 to 1000 (inclusive)
     ri.rannum_in(-10.,10.), // wrapped i64, -10 to 10 (inclusive)
+    ru16.rannum_in(60000.,65535.), // wrapped u16, 60000 to 65535 (inclusive)
     ru8.rannum_in(1.,6.)    // wrapped u8, 1 to 6 (inclusive)
 );
 ```
@@ -110,7 +113,7 @@ if let Rv::U8(vx) = uvec {
     println!("Dice roll sequence: {}", stringv(&vx)) };
 ```
 
-This example illustrated the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Here helper function `stringv` (from module secondary.rs) converts the extracted vector to a String to facilitate its printing. 
+This example illustrated the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Here helper function `stringv` (from module secondary.rs) converted the extracted vector to a String to facilitate its printing. 
 
 There is also enum type `Rvv` for returning vectors of vectors of random numbers:
 
@@ -132,7 +135,8 @@ Initialisation: the Self produced is `Rnum` type and will contain the default va
 ```rust    
 pub fn newf64() -> Self  
 pub fn newu64() -> Self    
-pub fn newi64() -> Self   
+pub fn newi64() -> Self 
+pub fn newu16() -> Self   
 pub fn newu8() -> Self  
 ```
 
@@ -167,14 +171,17 @@ Utility functions to directly generate vectors of random numbers of common numer
 /// filled with full range u64 random numbers.
 pub fn ranvu64(d: usize) -> Vec<u64> 
 
-/// Generates vector of size d, of u8 random numbers in [0,255].
-pub fn ranvu8(d: usize) -> Vec<u8> 
-
 /// Generates vector of size d, of full range i64 random numbers.
 pub fn ranvi64(d: usize) -> Vec<i64>
 
 /// Generates vector of size d, of f64 random numbers in [0,1).
 pub fn ranvf64(d: usize) -> Vec<f64>
+
+/// Generates vector of size d, of u16 random numbers in [0,65535].
+pub fn ranvu16(d: usize) -> Vec<u16> 
+
+/// Generates vector of size d, of u8 random numbers in [0,255].
+pub fn ranvu8(d: usize) -> Vec<u8> 
 ```
 
 Utility functions to generate vectors of vectors (matrices) of random numbers of common numeric end types:
@@ -183,9 +190,6 @@ Utility functions to generate vectors of vectors (matrices) of random numbers of
 /// Generates n vectors of size d each,
 /// filled with full range u64 random numbers.
 pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>>
-
-/// Generates n vectors of size d each, of u8 random numbers in [0,255].
-pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
 
 /// Generates n vectors of size d each, of full range i64 random numbers.
 pub fn ranvvi64(d: usize, n: usize) -> Vec<Vec<i64>> 
@@ -196,6 +200,14 @@ pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Vec<i64> {
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
 pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>
+
+/// Generates n vectors of size d each, of u8 random numbers in [0,255].
+pub fn ranvvu16(d: usize, n: usize) -> Vec<Vec<u16
+>> 
+
+/// Generates n vectors of size d each, of u8 random numbers in [0,255].
+pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
+
 ```
 
 And these f64 alternatives, using the improved f64 generator `xoshif64()`:
@@ -244,6 +256,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 ```
 
 ## Release Notes (Latest First)
+
+**Version 0.3.2** Added U16 type random numbers generation.
 
 **Version 0.3.1** Updated README.md to read more like an introductory user manual.
 

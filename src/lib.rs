@@ -5,13 +5,13 @@ use crate::secondary::{SEED,MANTISSA_MAX,get_seed,put_seed,get_xoshi,put_xoshi,x
 
 /// Wrapper for enum polymorphism - single value
 pub enum Rnum {
-    F64(f64), U64(u64), I64(i64), U8(u8)
+    F64(f64), U64(u64), I64(i64), U16(u16), U8(u8)
     // Should be extended to cover all numeric types.
 }
 
 /// Wrapper for enum polymorphism - vectors
 pub enum Rv { 
-    F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U8(Vec<u8>)
+    F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U16(Vec<u16>), U8(Vec<u8>) 
 }
 
 /// Wrapper for enum polymorphism - vectors of vectors
@@ -19,6 +19,7 @@ pub enum Rvv {
     F64(Vec<Vec<f64>>),
     U64(Vec<Vec<u64>>),
     I64(Vec<Vec<i64>>),
+    U16(Vec<Vec<u16>>),
     U8(Vec<Vec<u8>>)
 }
 
@@ -92,6 +93,12 @@ pub fn ranvu64(d: usize) -> Vec<u64> {
     (0..d).map(|_|xoshiu64()).collect::<Vec<u64>>()
 }
 
+/// Generates vector of size d, of u16 random numbers in [0,65535].
+/// You can similarly recast u64 yourself to any other type.
+pub fn ranvu16(d: usize) -> Vec<u16> {
+    (0..d).map(|_|ran_ubits(16)as u16).collect::<Vec<u16>>()
+}
+
 /// Generates vector of size d, of u8 random numbers in [0,255].
 /// You can similarly recast u64 yourself to any other type.
 pub fn ranvu8(d: usize) -> Vec<u8> {
@@ -118,6 +125,12 @@ pub fn ranvf64(d: usize) -> Vec<f64> {
 pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>> {
     if n * d < 1 { panic!("{} non positive dimensions", here!()) }
     (0..n).map(|_|ranvu64(d)).collect::<Vec<Vec<u64>>>()
+}
+
+/// Generates n vectors of size d each, of u16 random numbers in the interval [0,65535].
+pub fn ranvvu16(d: usize, n: usize) -> Vec<Vec<u16>> {
+    if n * d < 1 { panic!("{} non positive dimensions", here!()) }
+    (0..n).map(|_|ranvu16(d)).collect::<Vec<Vec<u16>>>()
 }
 
 /// Generates n vectors of size d each, of u8 random numbers in the interval [0,255].
