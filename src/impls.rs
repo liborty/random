@@ -15,7 +15,7 @@ impl Rnum {
             Rnum::U64(_) => Rnum::U64(xoshiu64()), 
             Rnum::I64(_) => Rnum::I64(xoshiu64()as i64),
             Rnum::U16(_) => Rnum::U16(ran_ubits(16) as u16),  
-            Rnum::U8(_) => Rnum::U8(ran_ubits(8) as u8) 
+            Rnum::U8(_) => Rnum::U8(ran_ubits(8) as u8), 
         }
     }
 
@@ -27,7 +27,7 @@ impl Rnum {
             Rnum::U16(_) => Rnum::U16((ran_ubits(16)as u16) % 
             (1_u16+(max-min)as u16) + (min as u16)),
             Rnum::U8(_) =>  Rnum::U8((ran_ubits(8)as u8) % 
-                (1_u8+(max-min)as u8) + (min as u8))
+                (1_u8+(max-min)as u8) + (min as u8)),
         }
     } 
 
@@ -37,7 +37,7 @@ impl Rnum {
             Rnum::U64(_) => Rv::U64(ranvu64(d)),
             Rnum::I64(_) => Rv::I64((0..d).map(|_|xoshiu64()as i64).collect::<Vec<i64>>()),
             Rnum::U16(_) => Rv::U16(ranvu16(d)),        
-            Rnum::U8(_) =>  Rv::U8(ranvu8(d))
+            Rnum::U8(_) =>  Rv::U8(ranvu8(d)),
         }        
     }
 
@@ -52,7 +52,7 @@ impl Rnum {
             Rnum::U16(_) =>  Rv::U16((0..d).map(|_|
                     ran_urange(min as u64, max as u64)as u16).collect()),
             Rnum::U8(_) =>  Rv::U8((0..d).map(|_|
-                ran_urange(min as u64, max as u64)as u8).collect())
+                ran_urange(min as u64, max as u64)as u8).collect()),
         }
         
     }
@@ -63,7 +63,7 @@ impl Rnum {
             Rnum::U64(_) => Rvv::U64(ranvvu64(d,n)),
             Rnum::I64(_) => Rvv::I64(ranvvi64(d,n)),
             Rnum::U16(_) => Rvv::U16(ranvvu16(d,n)),
-            Rnum::U8(_) =>  Rvv::U8(ranvvu8(d,n))
+            Rnum::U8(_) =>  Rvv::U8(ranvvu8(d,n)),
         }   
     }
 
@@ -77,7 +77,7 @@ impl Rnum {
             Rnum::U16(_) =>  { Rvv::U16((0..d).map(|_|
                 if let Rv::U16(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) }, 
             Rnum::U8(_) =>  { Rvv::U8((0..d).map(|_|
-                if let Rv::U8(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) }  
+                if let Rv::U8(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) },  
         }           
     }
 }
