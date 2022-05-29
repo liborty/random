@@ -4,7 +4,7 @@
 use devtimer::DevTime;
 // use anyhow::Result;
 // use indxvec::{Printing};
-use ran::{*,{secondary::stringv}};
+use ran::{Rnum,Rv,generators::{set_seeds,ranvvu8,ranvvf64,ranvvu64},secondary::stringv};
 
 #[test]
 fn rannums() {
@@ -28,6 +28,8 @@ fn rannums() {
 
     println!("\n10 random bytes: {}",ru8.ranv(10));
     println!("5 random pairs of bytes: {}",ru16.ranv(5));
+    // the following line tests 'getvi64()' instead of relying on Display
+    println!("2 random i64s: {}", stringv(&ri.ranv(2).getvi64()));
 
     // this is expanded here just to demonstrate pattern extraction
     // of the wrapped Vec<u8>, which is not normally needed for just printing it: 

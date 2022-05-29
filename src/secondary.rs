@@ -1,4 +1,4 @@
-use std::{fmt::Write,thread_local,cell::RefCell};
+use std::{fmt::Write};
 
 #[macro_export]
 macro_rules! here {
@@ -37,51 +37,3 @@ pub fn stringvv<T>(x:&[Vec<T>]) -> String where T: std::fmt::Display {
                 write!(s," {}",stringv(item)).ok();  s  }) + "\n]" 
     }
 }
-
-/// Constant for converting u64 numbers to f64s in [0,1).
-/// It is the maximum value of mantissa plus one.
-pub const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53
-
-// SEED is used by `ranf64` and/or `splitmix` algorithms
-// X0-X3 is used by all xoshiro type algorithms
-thread_local!(
-    // initialise SEED to a default value, in case user omits to set it
-    pub static SEED: RefCell<u64> = RefCell::new(555555555_u64);
-    static X0: RefCell<u64> = RefCell::new(111111111_u64);
-    static X1: RefCell<u64> = RefCell::new(222222222_u64);
-    static X2: RefCell<u64> = RefCell::new(333333333_u64);
-    static X3: RefCell<u64> = RefCell::new(444444444_u64);
-);
-
-/// Load the xoshiro seeds into an array
-/// so as not to have to pass them round everywhere as an `&mut [u64;4]` argument
-#[inline]
-pub fn get_xoshi() -> [u64;4] {
-    [ X0.with(|s| *s.borrow()),
-      X1.with(|s| *s.borrow()),
-      X2.with(|s| *s.borrow()),
-      X3.with(|s| *s.borrow()) ]
-}
-/// Put the xoshiro seeds back from a passed array
-#[inline]
-pub fn put_xoshi(seeds: &[u64;4]) {
-    X0.with(|s| *s.borrow_mut() = seeds[0]);
-    X1.with(|s| *s.borrow_mut() = seeds[1]); 
-    X2.with(|s| *s.borrow_mut() = seeds[2]); 
-    X3.with(|s| *s.borrow_mut() = seeds[3]);
-}
-/// Core part of the xoshi algorithms
-#[inline]
-pub fn xoshi_step(s: &mut[u64;4]) {    
-	let t = s[1] << 17;
-	s[2] ^= s[0];
-	s[3] ^= s[1];
-	s[1] ^= s[2];
-	s[0] ^= s[3];
-	s[2] ^= t;
-	s[3] =  s[3].rotate_left(45);
-}
-
-/// get and put the SEED values
-pub fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
-pub fn put_seed(seed:u64) { SEED.with(|s| *s.borrow_mut() = seed) }

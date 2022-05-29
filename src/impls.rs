@@ -1,4 +1,4 @@
-use crate::{secondary::{stringv, stringvv},*};
+use crate::{Rnum,Rv,Rvv,here,generators::*,secondary::{stringv, stringvv}};
 
 /// Implementation of (generic) functions for enum Rnum.
 impl Rnum {
@@ -7,7 +7,28 @@ impl Rnum {
     pub fn newu64() -> Self { Rnum::U64(0_u64) }  
     pub fn newi64() -> Self { Rnum::I64(0_i64) }
     pub fn newu16() -> Self { Rnum::U16(0_u16) }
-    pub fn newu8() -> Self { Rnum::U8(0_u8) } 
+    pub fn newu8() -> Self { Rnum::U8(0_u8) }
+
+    pub fn getf64(self) -> f64 { 
+        if let Rnum::F64(f) = self { f }
+        else { panic!("{} getf64 failed to find f64",here!()) }
+    }
+    pub fn getu64(self) -> u64 { 
+        if let Rnum::U64(u) = self { u }
+        else { panic!("{} getu64 failed to find u64",here!()) }
+    }    
+    pub fn geti64(self) -> i64 { 
+        if let Rnum::I64(i) = self { i }
+        else { panic!("{} geti64 failed to find i64",here!()) }
+    }    
+    pub fn getu16(self) -> u16 { 
+        if let Rnum::U16(u) = self { u }
+        else { panic!("{} getu16 failed to find u16",here!()) }
+    }    
+    pub fn getu8(self) -> u8 { 
+        if let Rnum::U8(u) = self { u }
+        else { panic!("{} getu8 failed to find u8",here!()) }
+    }
     
     pub fn rannum(&self) -> Self {
         match self {
@@ -79,6 +100,56 @@ impl Rnum {
             Rnum::U8(_) =>  { Rvv::U8((0..d).map(|_|
                 if let Rv::U8(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) },  
         }           
+    }
+}
+
+/// Implementation of (generic) functions for enum Rv.
+impl Rv {
+
+    pub fn getvf64(self) -> Vec<f64> { 
+        if let Rv::F64(f) = self { f }
+        else { panic!("{} getvf64 failed to find Vec<f64>",here!()) }
+    }
+    pub fn getvu64(self) -> Vec<u64> { 
+        if let Rv::U64(u) = self { u }
+        else { panic!("{} getvu64 failed to find Vec<u64>",here!()) }
+    }    
+    pub fn getvi64(self) -> Vec<i64> { 
+        if let Rv::I64(i) = self { i }
+        else { panic!("{} getvi64 failed to find Vec<i64>",here!()) }
+    }    
+    pub fn getvu16(self) -> Vec<u16> { 
+        if let Rv::U16(u) = self { u }
+        else { panic!("{} getvu16 failed to find Vec<u16>",here!()) }
+    }    
+    pub fn getvu8(self) -> Vec<u8> { 
+        if let Rv::U8(u) = self { u }
+        else { panic!("{} getvu8 failed to find Vec<u8>",here!()) }
+    }
+}
+
+/// Implementation of (generic) functions for enum Rvv.
+impl Rvv {
+
+    pub fn getvvf64(self) -> Vec<Vec<f64>> { 
+        if let Rvv::F64(f) = self { f }
+        else { panic!("{} getvvf64 failed to find Vec<Vec<f64>>",here!()) }
+    }
+    pub fn getvvu64(self) -> Vec<Vec<u64>> { 
+        if let Rvv::U64(u) = self { u }
+        else { panic!("{} getvvu64 failed to find Vec<Vec<u64>>",here!()) }
+    }    
+    pub fn getvi64(self) -> Vec<Vec<i64>> { 
+        if let Rvv::I64(i) = self { i }
+        else { panic!("{} getvvi64 failed to find Vec<Vec<i64>>",here!()) }
+    }    
+    pub fn getvvu16(self) -> Vec<Vec<u16>> { 
+        if let Rvv::U16(u) = self { u }
+        else { panic!("{} getvvu16 failed to find Vec<Vec<u16>>",here!()) }
+    }    
+    pub fn getvvu8(self) -> Vec<Vec<u8>> { 
+        if let Rvv::U8(u) = self { u }
+        else { panic!("{} getvvu8 failed to find Vec<Vec<u8>>",here!()) }
     }
 }
 

@@ -104,7 +104,6 @@ use anyhow::{Result,bail};
 if let Rnum::F64(x) = rf { utilise the x:f64 value }
 else {  bail!("rf does not hold value of f64 type!") };
 ```
-
 The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, its associated action will be just quietly skipped:
 
 ```rust
@@ -126,7 +125,15 @@ println!(
 ```
 `stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Dislay` is implemented for `Rvv` type and we did not bother to extract the wrapped value (vector of vectors).
 
-The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`. 
+The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`.
+
+Alternatively, for convenience, they can now all be extracted with supplied `get` functions, which just throw panic when the inner type is not found:
+
+```rust
+// the following line tests 'getvi64()'
+let pairofints = ri.ranv(2).getvi64();
+println!("2 random i64s: {}", stringv(&pairofints));
+```
 
 ## Generic Methods
 
@@ -256,6 +263,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 ```
 
 ## Release Notes (Latest First)
+
+**Version 0.3.3** Some reorganisation. Added module `generators.rs` which now contains all generating code. Added `get` functions to `impls.rs` for easy extraction of the inner values of all supported types from `Rnum, Rv, Rvv`.
 
 **Version 0.3.2** Added U16 type random numbers generation.
 
