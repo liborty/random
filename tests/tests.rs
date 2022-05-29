@@ -16,7 +16,7 @@ fn rannums() {
     let ru8 = Rnum::newu8();
 
     for _i in 1..5 {
-    println!("Four types in ranges: {}, {}, {}, {}",
+    println!("f64: {},\nu64: {},\ni64: {},\nu8: {}\n",
         rf.rannum_in(0.,100.),
         ru.rannum_in(1.,1000.),
         ri.rannum_in(-10.,10.),
