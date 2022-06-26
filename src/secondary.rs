@@ -1,6 +1,7 @@
 use std::{fmt::Write};
 
 #[macro_export]
+/// macro here!() inserts source file, line number and function name into error messages 
 macro_rules! here {
     () => {{
         fn f() {} 
@@ -19,6 +20,7 @@ macro_rules! here {
     }};
 }
 
+/// stringifies a generic slice for printing
 pub fn stringv<T>(x:&[T]) -> String where T: std::fmt::Display { 
     match x.len() {
         0 => "[]".to_string(),
@@ -28,6 +30,7 @@ pub fn stringv<T>(x:&[T]) -> String where T: std::fmt::Display {
     }
 }
 
+/// stringifies a generic slice of vectors for printing
 pub fn stringvv<T>(x:&[Vec<T>]) -> String where T: std::fmt::Display { 
     match x.len() {
         0 => "[]".to_string(),

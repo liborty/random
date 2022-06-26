@@ -5,11 +5,11 @@ use crate::{here};
 /// It is the maximum value of mantissa plus one.
 pub const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53
 
-// SEED is used by `ranf64` and/or `splitmix` algorithms
-// X0-X3 is used by all xoshiro type algorithms
 thread_local!(
-    // initialise SEED to a default value, in case user omits to set it
+    /// SEED is used by `ranf64` and/or `splitmix` algorithms
+    /// initialises SEED to a default value, in case user omits to set it
     pub static SEED: RefCell<u64> = RefCell::new(555555555_u64);
+    /// X0-X3 is used by all xoshiro type algorithms
     static X0: RefCell<u64> = RefCell::new(111111111_u64);
     static X1: RefCell<u64> = RefCell::new(222222222_u64);
     static X2: RefCell<u64> = RefCell::new(333333333_u64);
@@ -79,7 +79,7 @@ pub fn ran_i64() -> i64 { xoshiu64() as i64 }
 /// when you know that it will fit in.
 /// # Example
 /// ```
-/// use ran::*;
+/// use ran::{*,generators::ran_urange};
 /// set_seeds(1234567);
 /// // Roll of the classical die [1,6]:
 /// assert_eq!(6_u8,ran_urange(1u64,6u64)as u8);

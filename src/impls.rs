@@ -1,35 +1,46 @@
 use crate::{Rnum,Rv,Rvv,here,generators::*,secondary::{stringv, stringvv}};
 
-/// Implementation of (generic) functions for enum Rnum.
+/// Implementations of associated functions for enum Rnum.
 impl Rnum {
 
+    /// Receptacle for f64 random values
     pub fn newf64() -> Self { Rnum::F64(0_f64) }
-    pub fn newu64() -> Self { Rnum::U64(0_u64) }  
+    /// Receptacle for u64 random values
+    pub fn newu64() -> Self { Rnum::U64(0_u64) } 
+    /// Receptacle for i64 random values 
     pub fn newi64() -> Self { Rnum::I64(0_i64) }
+    /// Receptacle for u16 random values
     pub fn newu16() -> Self { Rnum::U16(0_u16) }
+    /// Receptacle for u8 random values
     pub fn newu8() -> Self { Rnum::U8(0_u8) }
 
+    /// retrieve f64 from Rnum instance
     pub fn getf64(self) -> f64 { 
         if let Rnum::F64(f) = self { f }
         else { panic!("{} getf64 failed to find f64",here!()) }
     }
+    /// retrieve u64 from Rnum instance
     pub fn getu64(self) -> u64 { 
         if let Rnum::U64(u) = self { u }
         else { panic!("{} getu64 failed to find u64",here!()) }
-    }    
+    }
+    /// retrieve i64 from Rnum instance    
     pub fn geti64(self) -> i64 { 
         if let Rnum::I64(i) = self { i }
         else { panic!("{} geti64 failed to find i64",here!()) }
-    }    
+    }
+    /// retrieve u16 from Rnum instance    
     pub fn getu16(self) -> u16 { 
         if let Rnum::U16(u) = self { u }
         else { panic!("{} getu16 failed to find u16",here!()) }
-    }    
+    }
+    /// retrieve u8 from Rnum instance    
     pub fn getu8(self) -> u8 { 
         if let Rnum::U8(u) = self { u }
         else { panic!("{} getu8 failed to find u8",here!()) }
     }
     
+    /// generate a single random number of required type, in full range
     pub fn rannum(&self) -> Self {
         match self {
             Rnum::F64(_) => Rnum::F64(xoshif64()),
@@ -40,6 +51,7 @@ impl Rnum {
         }
     }
 
+    /// generate a single random number of required type, in given range
     pub fn rannum_in(&self,min:f64,max:f64) -> Self {
         match self {
             Rnum::F64(_) => Rnum::F64(ran_frange(xoshif64(), min, max)),
@@ -52,6 +64,7 @@ impl Rnum {
         }
     } 
 
+    /// generate a vector of random numbers of required type, in full range
     pub fn ranv(&self,d:usize) -> Rv {
         match self {
             Rnum::F64(_) => Rv::F64(ranvf64_xoshi(d)),
@@ -62,6 +75,7 @@ impl Rnum {
         }        
     }
 
+    /// generate a vector of random numbers of required type, in given range    
     pub fn ranv_in(&self,d:usize,min:f64,max:f64) -> Rv {
         match self {
             Rnum::F64(_) => Rv::F64((0..d).map(|_|
@@ -74,10 +88,11 @@ impl Rnum {
                     ran_urange(min as u64, max as u64)as u16).collect()),
             Rnum::U8(_) =>  Rv::U8((0..d).map(|_|
                 ran_urange(min as u64, max as u64)as u8).collect()),
-        }
-        
+        }        
     }
 
+    /// generate a vector of n vectors (a matrix)
+    /// of random numbers of required type, in full range      
     pub fn ranvv(&self,d:usize,n:usize) -> Rvv { 
         match self {
             Rnum::F64(_) => Rvv::F64(ranvvf64_xoshi(d,n)),
@@ -88,6 +103,8 @@ impl Rnum {
         }   
     }
 
+    /// generate a vector of n vectors (a matrix) 
+    /// of random numbers of required type, in given range 
     pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Rvv { 
         match self {
             Rnum::F64(_) => { Rvv::F64((0..n).map(|_|
@@ -105,23 +122,27 @@ impl Rnum {
 
 /// Implementation of (generic) functions for enum Rv.
 impl Rv {
-
+    /// Extract a vector of f64 values from an instance of Rv type
     pub fn getvf64(self) -> Vec<f64> { 
         if let Rv::F64(f) = self { f }
         else { panic!("{} getvf64 failed to find Vec<f64>",here!()) }
     }
+    /// Extract a vector of u64 value from an instance of Rv type
     pub fn getvu64(self) -> Vec<u64> { 
         if let Rv::U64(u) = self { u }
         else { panic!("{} getvu64 failed to find Vec<u64>",here!()) }
-    }    
+    }
+    /// Extract a vector of i64 value from an instance of Rv type    
     pub fn getvi64(self) -> Vec<i64> { 
         if let Rv::I64(i) = self { i }
         else { panic!("{} getvi64 failed to find Vec<i64>",here!()) }
-    }    
+    }
+    /// Extract a vector of u16 value from an instance of Rv type    
     pub fn getvu16(self) -> Vec<u16> { 
         if let Rv::U16(u) = self { u }
         else { panic!("{} getvu16 failed to find Vec<u16>",here!()) }
-    }    
+    }
+    /// Extract a vector of u8 value from an instance of Rv type    
     pub fn getvu8(self) -> Vec<u8> { 
         if let Rv::U8(u) = self { u }
         else { panic!("{} getvu8 failed to find Vec<u8>",here!()) }
@@ -130,23 +151,27 @@ impl Rv {
 
 /// Implementation of (generic) functions for enum Rvv.
 impl Rvv {
-
+    /// Extract Vec<Vec<f64>>
     pub fn getvvf64(self) -> Vec<Vec<f64>> { 
         if let Rvv::F64(f) = self { f }
         else { panic!("{} getvvf64 failed to find Vec<Vec<f64>>",here!()) }
     }
+    /// Extract Vec<Vec<u64>>    
     pub fn getvvu64(self) -> Vec<Vec<u64>> { 
         if let Rvv::U64(u) = self { u }
         else { panic!("{} getvvu64 failed to find Vec<Vec<u64>>",here!()) }
-    }    
+    }
+    /// Extract Vec<Vec<i64>>    
     pub fn getvi64(self) -> Vec<Vec<i64>> { 
         if let Rvv::I64(i) = self { i }
         else { panic!("{} getvvi64 failed to find Vec<Vec<i64>>",here!()) }
-    }    
+    }
+    /// Extract Vec<Vec<u16>>    
     pub fn getvvu16(self) -> Vec<Vec<u16>> { 
         if let Rvv::U16(u) = self { u }
         else { panic!("{} getvvu16 failed to find Vec<Vec<u16>>",here!()) }
-    }    
+    }
+    /// Extract Vec<Vec<u8>>    
     pub fn getvvu8(self) -> Vec<Vec<u8>> { 
         if let Rvv::U8(u) = self { u }
         else { panic!("{} getvvu8 failed to find Vec<Vec<u8>>",here!()) }

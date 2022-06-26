@@ -2,9 +2,7 @@
 #![allow(dead_code)]
 #[cfg(test)]
 use devtimer::DevTime;
-// use anyhow::Result;
-// use indxvec::{Printing};
-use ran::{Rnum,Rv,generators::{set_seeds,ranvvu8,ranvvf64,ranvvu64},secondary::stringv};
+use ran::{Rnum,Rv,set_seeds,generators::{ranvvu8,ranvvf64,ranvvu64},secondary::stringv};
 
 #[test]
 fn rannums() {

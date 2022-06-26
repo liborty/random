@@ -13,43 +13,33 @@ Not everyone wants to add 375 kB, plus another ten dependencies, just to generat
 
 In contradistinction, this crate is lightweight and it has no dependencies.
 
-Even so, there are four different algorithms on offer, plus a good range of utility functions to easily generate vectors and vectors of vectors filled with random numbers.
+Even so, there are four different algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors filled with random numbers.
 
 The main objective has been the ease of use rather than flat-out speed but the algorithms are neverheless very fast.
 
-It is highly recommended to run `tests/tests.rs` with examples of usage. Here is a part of it:
-
-```rust
-    println!("20 random bytes: {}",ru8.ranvec(20));
-    println!("Dice roll: {}",ru8.ranvec_in(20,1.,6.));
-    println!("5x5 matrix of integers:\n{}",ri.ranvv_in(5,5,-10.,10.));
-```
+It is highly recommended to run `tests/tests.rs` with examples of usage. 
 
 ## Getting Started
 
 ```rust
-use ran::*;
+use ran::*; or
+use ran::{set_seeds,Rnum,Rv,Rvv};
 ```
 
-These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different, random sequence. Of course, the same seed will always produce the same sequence but this is actually useful for exact testing comparisons.
+These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different, random sequence. Of course, the same seed will always produce the same sequence and this is sometimes actually useful for exact testing comparisons.
 
 ```rust
 /// This function initialises SEED and xoshi seeds X0-X3. 
 /// The supplied value must be non zero, 
 /// otherwise seeds will remain unchanged.
 pub fn set_seeds( seed:u64 )
-
-/// Resets xoshi seeds without changing the main SEED.
-/// There is usually no need to reset seeds when they are 
-/// already running.
-pub fn reset_xoshi() 
 ```
 
 ## Generic Usage
 
-Polymorphic interface avoids having to use different typed functions for each primitive type. This can be repetitive, given that there are quite a few numeric types. Nevertheless, such typed functions are also available in Ran and can be used in simple applications directly (see Explicitly Typed Functions below).
+Polymorphic interface avoids having to use different typed functions for each primitive type. This can be repetitive, given that there are quite a few primitive numeric types. Nevertheless, such typed functions are also available here (`use ran::generators::*;`). They can be used in simple applications directly (see below, section Explicitly Typed Functions).
 
-In `lib.rs` we define three polymorphic (generic types):
+In `lib.rs` we define three polymorphic (generic) enum types:
 
 ```rust
 /// Wrapper for enum polymorphism - single value
@@ -73,7 +63,10 @@ pub enum Rvv {
 }
 ```
 
- To use the generics, we generate an instance of one of these types. For single random numbers, it will be enum type `Rnum`, of the variant  corresponding to the end-type of the random numbers to be generated. Thus `Rnum` is just a wrapper, serving to communicate to the generic method(s) information about the actual type of the (random) numbers wanted. The following example shows variables of all the main types being declared:
+Their filling with random numbers of required types is done by their `associated functions`, defined in module `impls.rs`.
+ First create an instance of one of these types. For single random numbers, it will be enum type `Rnum`, of the variant  corresponding to the end-type of the random numbers wanted.
+ 
+ `Rnum, Rv, Rvv` are just wrapper enum types, serving to communicate to the generic method(s) information about the actual type of the (random) number(s) wanted. The following example shows how to create instance variables for all them:
 
 ```rust
 let rf = Rnum::newf64();
@@ -83,20 +76,19 @@ let ru16 = Rnum::newu16();
 let ru8 = Rnum::newu8();
 ```
 
-We can then apply common generic method(s) to all such variables to generate the required random numbers. The results are again wrapped inside an `Rnum` type. For example:
+We can then apply common generic method(s) to all such variables to generate the required random numbers. For example:
 
 ```rust
 println!("Random numbers in specified ranges: {}, {}, {}, {}",
-    rf.rannum_in(0.,100.),  // wrapped f64 value
+    rf.rannum_in(0.,100.),  // wrapped f64 value 0. to 100.
     ru.rannum_in(1.,1000.), // wrapped u64, 1 to 1000 (inclusive)
     ri.rannum_in(-10.,10.), // wrapped i64, -10 to 10 (inclusive)
-    ru16.rannum_in(60000.,65535.), // wrapped u16, 60000 to 65535 (inclusive)
-    ru8.rannum_in(1.,6.)    // wrapped u8, 1 to 6 (inclusive)
+    ru16.rannum_in(60000.,65535.), // u16, 60000 to 65535
+    ru8.rannum_in(1.,6.) // wrapped u8, 1 to 6 (inclusive)
 );
 ```
 
-They all print because `Display` has been implemented for `Rnum`.  
-The wrapped values can be `if let` pattern extracted as follows:
+They all print because `Display` has been implemented for these three enum types. Their inner wrapped values can be `if let` pattern extracted as follows:
 
 ```rust
 use anyhow::{Result,bail};
@@ -104,7 +96,7 @@ use anyhow::{Result,bail};
 if let Rnum::F64(x) = rf { utilise the x:f64 value }
 else {  bail!("rf does not hold value of f64 type!") };
 ```
-The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, its associated action will be just quietly skipped:
+The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, it will be just ignored:
 
 ```rust
 let uvec:Rv = ru8.ranv_in(20,1.,6.); // wrapped vec of random u8 values
@@ -112,7 +104,7 @@ if let Rv::U8(vx) = uvec {
     println!("Dice roll sequence: {}", stringv(&vx)) };
 ```
 
-This example illustrated the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Here helper function `stringv` (from module secondary.rs) converted the extracted vector to a String to facilitate its printing. 
+This example illustrated the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. (The helper function `stringv` from module `secondary.rs` converted the extracted vector to a String to facilitate its printing). Of course, `uvec` would print as it is.
 
 There is also enum type `Rvv` for returning vectors of vectors of random numbers:
 
@@ -127,7 +119,7 @@ println!(
 
 The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`.
 
-Alternatively, for convenience, they can now all be extracted with supplied `get` functions, which just throw panic when the inner type is not found:
+Alternatively, for convenience, they can all be extracted with supplied `get` functions. Their names follow this convention: `get+()|v|vv+end_type`. They just throw panic when the correct inner type is not found:
 
 ```rust
 // the following line tests 'getvi64()'
@@ -262,7 +254,9 @@ There is also a function that transforms any f64 number in standard range [0,1) 
 pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64 
 ```
 
-## Release Notes (Latest First)
+## Recent Releases (Latest First)
+
+**Version 0.3.4** Improved documentation. Publicly exported `set_seeds(n)`. It is now available at crate level as: `use ran::{set_seeds, ....};`
 
 **Version 0.3.3** Some reorganisation. Added module `generators.rs` which now contains all generating code. Added `get` functions to `impls.rs` for easy extraction of the inner values of all supported types from `Rnum, Rv, Rvv`.
 
@@ -279,13 +273,3 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 **Version 0.2.2** Added `ran_irange, ranvi64, ranvvi64`, to generate i64 random numbers in any i64 range. Plus some appropriate tests in `tests.rs`. Restricted bits argument in `ran_ubits(bits:u8)` to u8, as it should never exceed even 63. Corrected some comments.
 
 **Version 0.2.0** Added `tests/tests.rs`. Added general purpose `xoshiu64()` which is now used to construct random numbers of all (unsigned) integer types and ranges. Reorganised, renamed and/or deleted some functions. Made the xoshi seeds also static, for ease of use. They no longer need to be explicitly passed as arguments.
-
-**Version 0.1.4** Fixed the debug mode overflow 'errors'. They were not affecting the release mode but given that this crate is intended for testing, they were annoying. The solution was to use `overflowing_` versions of some of the operators, available as of Rust version 1.53. So, in case of problems, you may have to update to the latest (stable) version of Rust.
-
-**Version 0.1.3** Tested and fixed an &mut argument. Added `ranvvf64_xoshiro` and `ranvvu8_xoshiro` for completeness.
-
-**Version 0.1.2** Fixed the initial typos.
-
-**Version 0.1.1** Changed the crate name to `ran` as all others are taken.
-
-**Version 0.1.0** The initial version.
