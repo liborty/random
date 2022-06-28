@@ -37,7 +37,15 @@ pub fn set_seeds( seed:u64 )
 
 ## Generic Usage
 
-Polymorphic interface avoids having to use different typed functions for each primitive type. This can be repetitive, given that there are quite a few primitive numeric types. Nevertheless, such typed functions are also available here (`use ran::generators::*;`). They can be used in simple applications directly (see below, section Explicitly Typed Functions).
+Simple instructive example to generate a dxn matrix of random bytes:
+
+```rust 
+    let matrix = Rnum::newu8().ranvv(d, n).getvvu8();
+```
+
+First we created Rnum instance for the required type (u8). This can be saved with let statement and reused for repeated generations of values, vectors and matrices of the same end type. Next we call on it generic method `ranv(d,n)`, that generates random numbers. Finally, we retrieve the matrix from its wrapper with `getvvu8()`. The last two methods must agree on the target object, in this case both indicate `vv` = `vec of vecs`.
+
+Polymorphic interface avoids having to use different typed functions for each primitive type. This can be too repetitive, given that there are quite a few primitive numeric types. Nevertheless, such typed functions are also available in (`use ran::generators::*;`). They can be used in simple applications directly (see below, section Explicitly Typed Functions).
 
 In `lib.rs` we define three polymorphic (generic) enum types:
 
