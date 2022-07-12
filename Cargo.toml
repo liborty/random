@@ -1,6 +1,6 @@
 [package]
 name = "ran"
-version = "0.3.4"
+version = "1.0.0"
 edition = "2021"
 authors = ["Libor Spacek"]
 description = """Simple, fast random numbers generation"""
@@ -24,3 +24,4 @@ maintenance = { status = "actively-developed" }
 [dev-dependencies]
 # indxvec = "^1"
 devtimer = "^4"
+# times = "^0"

@@ -38,7 +38,7 @@ impl Rnum {
     pub fn getu8(self) -> u8 { 
         if let Rnum::U8(u) = self { u }
         else { panic!("{} getu8 failed to find u8",here!()) }
-    }
+    } 
     
     /// generate a single random number of required type, in full range
     pub fn rannum(&self) -> Self {

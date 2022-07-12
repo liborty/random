@@ -264,6 +264,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.0.0** No substantive changes for a while, upgrading to Version 1.0.0.
+
 **Version 0.3.4** Improved documentation. Publicly exported `set_seeds(n)`. It is now available at crate level as: `use ran::{set_seeds, ....};`
 
 **Version 0.3.3** Some reorganisation. Added module `generators.rs` which now contains all generating code. Added `get` functions to `impls.rs` for easy extraction of the inner values of all supported types from `Rnum, Rv, Rvv`.
