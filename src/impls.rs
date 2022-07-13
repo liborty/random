@@ -1,5 +1,6 @@
 use crate::{Rnum,Rv,Rvv,here,generators::*,secondary::{stringv, stringvv}};
 
+
 /// Implementations of associated functions for enum Rnum.
 impl Rnum {
 
@@ -39,7 +40,7 @@ impl Rnum {
         if let Rnum::U8(u) = self { u }
         else { panic!("{} getu8 failed to find u8",here!()) }
     } 
-    
+
     /// generate a single random number of required type, in full range
     pub fn rannum(&self) -> Self {
         match self {
