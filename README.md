@@ -264,6 +264,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.0.1** Added generic get functions to unpack the data but note that they will only work if all the `From` converters have been fully implemented. `get_generic` upacks Rnum type, `getv_generic` unpacks Rv type and `getvv_generic` unpacks Rvv type.
+
 **Version 1.0.0** No substantive changes for a while, upgrading to Version 1.0.0.
 
 **Version 0.3.4** Improved documentation. Publicly exported `set_seeds(n)`. It is now available at crate level as: `use ran::{set_seeds, ....};`

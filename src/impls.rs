@@ -41,6 +41,18 @@ impl Rnum {
         else { panic!("{} getu8 failed to find u8",here!()) }
     } 
 
+    /// Extract a T value from an instance of Rnum type    
+    pub fn get_generic<T>( self ) -> T
+        where T:Clone+From<u8>+From<u16>+From<f64>+From<u64>+From<i64> {
+        match self {
+            Rnum::U8(rn) => T::from(rn),
+            Rnum::U16(rn) => T::from(rn),
+            Rnum::U64(rn) => T::from(rn),
+            Rnum::I64(rn) => T::from(rn),
+            Rnum::F64(rn) => T::from(rn)
+            }
+        }
+
     /// generate a single random number of required type, in full range
     pub fn rannum(&self) -> Self {
         match self {
@@ -148,7 +160,18 @@ impl Rv {
         if let Rv::U8(u) = self { u }
         else { panic!("{} getvu8 failed to find Vec<u8>",here!()) }
     }
-}
+    /// Extract a vector of T values from an instance of Rv type    
+    pub fn getv_generic<T>( self ) -> Vec<T>
+    where T:Clone+From<u8>+From<u16>+From<f64>+From<u64>+From<i64> {
+    match self {
+        Rv::U8(rn) => rn.iter().map(|&d| T::from(d)).collect::<Vec<T>>(),
+        Rv::U16(rn) => rn.iter().map(|&d| T::from(d)).collect::<Vec<T>>(),
+        Rv::U64(rn) => rn.iter().map(|&d| T::from(d)).collect::<Vec<T>>(),
+        Rv::I64(rn) => rn.iter().map(|&d| T::from(d)).collect::<Vec<T>>(),
+        Rv::F64(rn) => rn.iter().map(|&d| T::from(d)).collect::<Vec<T>>(),
+        }
+    }
+} 
 
 /// Implementation of (generic) functions for enum Rvv.
 impl Rvv {
@@ -177,6 +200,27 @@ impl Rvv {
         if let Rvv::U8(u) = self { u }
         else { panic!("{} getvvu8 failed to find Vec<Vec<u8>>",here!()) }
     }
+    /// Extract a vector of of vectors of T values from an instance of Rvv type    
+        pub fn getvv_generic<T>( self ) -> Vec<Vec<T>>
+        where T:Clone+From<u8>+From<u16>+From<f64>+From<u64>+From<i64> {
+        match self {
+        Rvv::U8(rn) => 
+            rn.iter().map(|v| v.iter().map(|&d| T::from(d)).collect::<Vec<T>>())
+            .collect::<Vec<Vec<T>>>(),
+        Rvv::U16(rn) => 
+            rn.iter().map(|v| v.iter().map(|&d| T::from(d)).collect::<Vec<T>>())
+            .collect::<Vec<Vec<T>>>(),
+        Rvv::U64(rn) => 
+            rn.iter().map(|v| v.iter().map(|&d| T::from(d)).collect::<Vec<T>>())
+            .collect::<Vec<Vec<T>>>(),
+        Rvv::I64(rn) => 
+            rn.iter().map(|v| v.iter().map(|&d| T::from(d)).collect::<Vec<T>>())
+            .collect::<Vec<Vec<T>>>(),
+        Rvv::F64(rn) => 
+            rn.iter().map(|v| v.iter().map(|&d| T::from(d)).collect::<Vec<T>>())
+            .collect::<Vec<Vec<T>>>()
+            }
+        }
 }
 
 /// Implementation of Display trait for enum Rnum.

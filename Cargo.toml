@@ -1,6 +1,6 @@
 [package]
 name = "ran"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["Libor Spacek"]
 description = """Simple, fast random numbers generation"""
