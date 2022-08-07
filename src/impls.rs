@@ -122,12 +122,12 @@ impl Rnum {
         match self {
             Rnum::F64(_) => { Rvv::F64((0..n).map(|_|
                 if let Rv::F64(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) }, 
-            Rnum::U64(_) => { Rvv::U64((0..d).map(|_|
+            Rnum::U64(_) => { Rvv::U64((0..n).map(|_|
                 if let Rv::U64(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) }, 
             Rnum::I64(_) => Rvv::I64(ranvvi64_in(d,n,min as i64,max as i64)), 
-            Rnum::U16(_) =>  { Rvv::U16((0..d).map(|_|
+            Rnum::U16(_) =>  { Rvv::U16((0..n).map(|_|
                 if let Rv::U16(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) }, 
-            Rnum::U8(_) =>  { Rvv::U8((0..d).map(|_|
+            Rnum::U8(_) =>  { Rvv::U8((0..n).map(|_|
                 if let Rv::U8(v) = self.ranv_in(d,min,max) {v} else {[].to_vec()}).collect()) },  
         }           
     }

@@ -1,8 +1,8 @@
 // #![allow(unused_imports)]
 #![allow(dead_code)]
 #[cfg(test)]
-use devtimer::DevTime;
-use ran::{Rnum,Rv,set_seeds,generators::{ranvvu8,ranvvf64,ranvvu64},secondary::stringv};
+use times::{bench};
+use ran::{Rnum,Rv,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
 
 #[test]
 fn rannums() {
@@ -42,29 +42,20 @@ fn rannums() {
 
 #[test]
 fn timing() {
-    let d = 10000_usize;
-    let n = 20_usize;
-    println!( "Generating {} sets of vectors of length {} each",n, d );
-    let mut u_timer = DevTime::new_simple();
-    let mut f_timer = DevTime::new_simple();
-    let mut i_timer = DevTime::new_simple(); 
+    const D:usize = 10000;
+    const N:usize = 20;
+    println!( "Generating {} sets of vectors of length {} each",N, D );
 
-    u_timer.start();
-    let _v = ranvvu8(d,n); 
-    u_timer.stop();
+    const NAMES:[&str;5] = [ "ranvvu8","ranvvu64","ranvvu16","ranvvi64","ranvvf64" ];
 
-    f_timer.start();
-    let _v = ranvvf64(d,n); 
-    f_timer.stop();
-  
-    i_timer.start();
-    let _v = ranvvu64(d,n); 
-    i_timer.stop();
- 
-    let u_time = u_timer.time_in_nanos().unwrap() as f64/1e9;
-    let f_time = f_timer.time_in_nanos().unwrap() as f64/1e9;
-    let i_time = i_timer.time_in_nanos().unwrap() as f64/1e9;
+    const CLOSURES:[fn();5] = [
+        || { ranvvu8(D,N); }, 
+        || { ranvvu64(D,N); }, 
+        || { ranvvu16(D,N); },
+        || { ranvvi64(D,N); },
+        || { ranvvf64(D,N); } ];
 
-    println!("u8time: {} f64time: {} u64time: {}",
-     u_time, f_time, i_time);
+    set_seeds(7777777777_u64);   // intialise random numbers generator
+    // Rnum encapsulates the type of the data items
+    bench(10,&NAMES,&CLOSURES); 
 }

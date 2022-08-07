@@ -264,6 +264,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.0.2** Fixed dimension error in `ranvv_in`. Updated dev-depency from `devtimer` to `times`. Added a timing test.
+
 **Version 1.0.1** Added generic get functions to unpack the data but note that they will only work if all the `From` converters have been fully implemented. `get_generic` upacks Rnum type, `getv_generic` unpacks Rv type and `getvv_generic` unpacks Rvv type.
 
 **Version 1.0.0** No substantive changes for a while, upgrading to Version 1.0.0.
