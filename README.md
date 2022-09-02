@@ -17,7 +17,7 @@ Even so, there are four different algorithms on offer, plus a good range of util
 
 The main objective has been the ease of use rather than flat-out speed but the algorithms are neverheless very fast.
 
-It is highly recommended to run `tests/tests.rs` with examples of usage. 
+It is highly recommended to read and run [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. 
 
 ## Getting Started
 
@@ -264,26 +264,10 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.0.3** Updated the dev dependency.
+
 **Version 1.0.2** Fixed dimension error in `ranvv_in`. Updated dev-depency from `devtimer` to `times`. Added a timing test.
 
 **Version 1.0.1** Added generic get functions to unpack the data but note that they will only work if all the `From` converters have been fully implemented. `get_generic` upacks Rnum type, `getv_generic` unpacks Rv type and `getvv_generic` unpacks Rvv type.
 
 **Version 1.0.0** No substantive changes for a while, upgrading to Version 1.0.0.
-
-**Version 0.3.4** Improved documentation. Publicly exported `set_seeds(n)`. It is now available at crate level as: `use ran::{set_seeds, ....};`
-
-**Version 0.3.3** Some reorganisation. Added module `generators.rs` which now contains all generating code. Added `get` functions to `impls.rs` for easy extraction of the inner values of all supported types from `Rnum, Rv, Rvv`.
-
-**Version 0.3.2** Added U16 type random numbers generation.
-
-**Version 0.3.1** Updated README.md to read more like an introductory user manual.
-
-**Version 0.3.0** Substantial revision. Completed the generic interface. Renamed some types and functions. Created two separate source modules (`impls.rs, secondary.rs`) to clean up `lib.rs`. Removed dev-dependence on indxvec.
-
-**Version 0.2.4** Extended the interface to vecs and vecs of vecs, in full range and in given range.
-
-**Version 0.2.3** Added boilerplate polymorphic interface.
-
-**Version 0.2.2** Added `ran_irange, ranvi64, ranvvi64`, to generate i64 random numbers in any i64 range. Plus some appropriate tests in `tests.rs`. Restricted bits argument in `ran_ubits(bits:u8)` to u8, as it should never exceed even 63. Corrected some comments.
-
-**Version 0.2.0** Added `tests/tests.rs`. Added general purpose `xoshiu64()` which is now used to construct random numbers of all (unsigned) integer types and ranges. Reorganised, renamed and/or deleted some functions. Made the xoshi seeds also static, for ease of use. They no longer need to be explicitly passed as arguments.
