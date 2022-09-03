@@ -21,4 +21,4 @@ maintenance = { status = "actively-developed" }
 [lib]
 [dependencies]
 [dev-dependencies]
-times = "1.0.3"
+times = "1.0"
