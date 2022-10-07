@@ -128,7 +128,7 @@ println!(
 
 The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`.
 
-Alternatively, for convenience, they can all be extracted with supplied `get` functions. Their names follow this convention: `get+()|v|vv+end_type`. They just throw panic when the correct inner type is not found:
+Alternatively, for convenience, they can all be extracted with supplied `get` methods. Their names follow this syntax: `get{|v|vv}end_type()`.
 
 ```rust
 // the following line tests 'getvi64()'
@@ -222,7 +222,7 @@ And these f64 alternatives, using the improved f64 generator `xoshif64()`:
 
 ```rust
 /// Generates vector of size d, of f64 random numbers in [0,1).
-/// Bit slower but otherwise superior to `ranvf64`.
+/// Bit slower but otherwise superior to plain `ranvf64`.
 pub fn ranvf64_xoshi(d: usize) -> Vec<f64> 
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
