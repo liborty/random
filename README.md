@@ -24,7 +24,7 @@ It is highly recommended to read and run [`tests/tests.rs`](https://github.com/l
 
 ```rust
 use ran::*; or
-use ran::{set_seeds,Rnum,Rv,Rvv};
+use ran::{set_seeds,RE,Rnum,Rv,Rvv};
 ```
 
 These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different, random sequence. Of course, the same seed will always produce the same sequence and this is sometimes actually useful for exact testing comparisons.
@@ -41,10 +41,10 @@ pub fn set_seeds( seed:u64 )
 Simple instructive example to generate a dxn matrix of random bytes:
 
 ```rust 
-    let matrix = Rnum::newu8().ranvv(d, n).getvvu8();
+    let matrix = Rnum::newu8().ranvv(d, n)?.getvvu8()?;
 ```
 
-First we created Rnum instance for the required type (u8). This can be saved with let statement and reused for repeated generations of values, vectors and matrices of the same end type. Next we call on it generic method `ranv(d,n)`, that generates random numbers. Finally, we retrieve the matrix from its wrapper with `getvvu8()`. The last two methods must agree on the target object, in this case both indicate `vv` = `vec of vecs`.
+First we created Rnum instance for the required type (u8). This can be saved with let statement and reused for repeated generations of values, vectors and matrices of the same end type. Next we call on it generic method `ranv(d,n)`, that generates random numbers. Finally, we retrieve the matrix from its wrapper with `getvvu8()`. The last two methods must agree on the target object, in this case both indicate `vv` = `vec of vecs`. They both potentially return custom error `RE`: here we are just passing it up with the `?` operator.
 
 Polymorphic interface avoids having to use different typed functions for each primitive type. This can be too repetitive, given that there are quite a few primitive numeric types. Nevertheless, such typed functions are also available in (`use ran::generators::*;`). They can be used in simple applications directly (see below, section Explicitly Typed Functions).
 
@@ -108,12 +108,12 @@ else {  bail!("rf does not hold value of f64 type!") };
 The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, it will be just ignored:
 
 ```rust
-let uvec:Rv = ru8.ranv_in(20,1.,6.); // wrapped vec of random u8 values
-if let Rv::U8(vx) = uvec { 
-    println!("Dice roll sequence: {}", stringv(&vx)) };
+// wrapped vec of random u8 values
+if let Rv::U8(vx) = ru8.ranv_in(20,1.,6.)?  
+    {  println!("Dice roll sequence: {}", stringv(&vx)) };
 ```
 
-This example illustrated the use of enum type `Rv`, used for returning whole vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. (The helper function `stringv` from module `secondary.rs` converted the extracted vector to a String to facilitate its printing). Of course, `uvec` would print as it is.
+This example illustrated the use of enum type `Rv`, used for vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. (The helper function `stringv` from module `secondary.rs` converted the extracted vector to a String to facilitate its printing). Of course, Rv type object (unextracted) would print as it is.
 
 There is also enum type `Rvv` for returning vectors of vectors of random numbers:
 
@@ -121,7 +121,7 @@ There is also enum type `Rvv` for returning vectors of vectors of random numbers
 // vec of vecs using ranvv_in(d,n,min,max) and Display of Rvv
 println!(
     "5x5 matrix of integers in range [-10,10]:\n{}",
-    ri.ranvv_in(5,5,-10.,10.)
+    ri.ranvv_in(5,5,-10.,10.)?
 );
 ```
 `stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Dislay` is implemented for `Rvv` type and we did not bother to extract the wrapped value (vector of vectors).
@@ -132,7 +132,7 @@ Alternatively, for convenience, they can all be extracted with supplied `get` me
 
 ```rust
 // the following line tests 'getvi64()'
-let pairofints = ri.ranv(2).getvi64();
+let pairofints = ri.ranv(2)?.getvi64()?;
 println!("2 random i64s: {}", stringv(&pairofints));
 ```
 
@@ -156,16 +156,16 @@ returns a wrapped random number of one of the main types in  maximum range allow
 `pub fn rannum_in(&self,min:f64,max:f64) -> Self`  
 returns a wrapped random number of one of the main types in the range min,max (min,max are  always `f64`s for commonality). The range should not exceed the width of the type, e.g. 0.,255. for `u8`. Nor should it be negative for unsigned types.
 
-`pub fn ranv(&self,d:usize) -> Rv`  
-returns a wrapped Vec of length d filled with random numbers of one  of the main primitive types. Note that the whole `Vec` is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
+`pub fn ranv(&self,d:usize) -> Result<Rv,RE>`  
+Rv value is a wrapped Vec of length d filled with random numbers of one of the main primitive types. Note that the whole `Vec` is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
 
 `pub fn ranv_in(&self,d:usize,min:f64,max:f64) -> Rv`  
 same as `ranv` but using the specified range for the random values.
 
-`pub fn ranvv(&self,d:usize,n:usize) -> Rvv`  
-returns a wrapped `Vec<Vec<_>>` consisting of n vectors, each of length d, filled with random numbers of one of the main primitive types. Note that only the whole result is wrapped, not each individual vector or element of it. Thus, again, only one pattern extraction is needed.
+`pub fn ranvv(&self,d:usize,n:usize) -> Result<Rvv,RE>`  
+Rvv value is a wrapped `Vec<Vec<_>>` consisting of n vectors, each of length d, filled with random numbers of one of the main primitive types. Note that only the whole result is wrapped, not each individual vector or element of it. Thus, again, only one pattern extraction is needed.
 
-`pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Rvv`  
+`pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Result<Rvv,RE>`  
 same as `ranvv` but using the specified range for the random values.
 
 There is no need to read beyond this point for normal daily use of this crate. However, there may be special circumstances, when using directly one of the typed functions is more convenient. Such as when needing only one specific end type. Another circumstance may be when wanting to use specific random number generator(s), different to the default ones used within the above methods. (Several are provided).
@@ -177,19 +177,22 @@ Utility functions to directly generate vectors of random numbers of common numer
 ```rust
 /// Generates vector of size d, 
 /// filled with full range u64 random numbers.
-pub fn ranvu64(d: usize) -> Vec<u64> 
+pub fn ranvu64(d: usize) -> Result<Vec<u64>,RE>
 
 /// Generates vector of size d, of full range i64 random numbers.
-pub fn ranvi64(d: usize) -> Vec<i64>
+pub fn ranvi64(d: usize) -> Result<Vec<i64>,RE>
+
+/// Generates vector of size d, i64 random numbers in [min,max].
+pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Result<Vec<i64>,RE> {
 
 /// Generates vector of size d, of f64 random numbers in [0,1).
-pub fn ranvf64(d: usize) -> Vec<f64>
+pub fn ranvf64(d: usize) -> Result<Vec<f64>,RE>
 
 /// Generates vector of size d, of u16 random numbers in [0,65535].
-pub fn ranvu16(d: usize) -> Vec<u16> 
+pub fn ranvu16(d: usize) -> Result<Vec<u16>,RE> 
 
 /// Generates vector of size d, of u8 random numbers in [0,255].
-pub fn ranvu8(d: usize) -> Vec<u8> 
+pub fn ranvu8(d: usize) -> Result<Vec<u8>,RE> 
 ```
 
 Utility functions to generate vectors of vectors (matrices) of random numbers of common numeric end types:
@@ -197,25 +200,22 @@ Utility functions to generate vectors of vectors (matrices) of random numbers of
 ```rust
 /// Generates n vectors of size d each,
 /// filled with full range u64 random numbers.
-pub fn ranvvu64(d: usize, n: usize) -> Vec<Vec<u64>>
+pub fn ranvvu64(d: usize, n: usize) -> Result<Vec<Vec<u64>>,RE>
 
 /// Generates n vectors of size d each, of full range i64 random numbers.
-pub fn ranvvi64(d: usize, n: usize) -> Vec<Vec<i64>> 
+pub fn ranvvi64(d: usize, n: usize) -> Result<Vec<Vec<i64>>,RE> 
 
-/// Generates vector of size d, of i64 random numbers 
-/// in the interval [min,max]. May include zero.
-pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Vec<i64> {
+/// Generates n vectors of size d, each of i64 random numbers in [min,max].
+pub fn ranvvi64_in(d: usize, n: usize, min:i64, max:i64) -> Result<Vec<Vec<i64>>,RE>  
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
-pub fn ranvvf64(d: usize, n: usize) -> Vec<Vec<f64>>
+pub fn ranvvf64(d: usize, n: usize) -> Result<Vec<Vec<f64>>,RE>
 
 /// Generates n vectors of size d each, of u8 random numbers in [0,255].
-pub fn ranvvu16(d: usize, n: usize) -> Vec<Vec<u16
->> 
+pub fn ranvvu16(d: usize, n: usize) -> Result<Vec<Vec<u16>>,RE> 
 
 /// Generates n vectors of size d each, of u8 random numbers in [0,255].
-pub fn ranvvu8(d: usize, n: usize) -> Vec<Vec<u8>> 
-
+pub fn ranvvu8(d: usize, n: usize) -> Result<Vec<Vec<u8>>,RE>
 ```
 
 And these f64 alternatives, using the improved f64 generator `xoshif64()`:
@@ -223,10 +223,10 @@ And these f64 alternatives, using the improved f64 generator `xoshif64()`:
 ```rust
 /// Generates vector of size d, of f64 random numbers in [0,1).
 /// Bit slower but otherwise superior to plain `ranvf64`.
-pub fn ranvf64_xoshi(d: usize) -> Vec<f64> 
+pub fn ranvf64_xoshi(d: usize) -> Result<Vec<f64>,RE> 
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
-pub fn ranvvf64_xoshi(d: usize, n: usize) -> Vec<Vec<f64>> 
+pub fn ranvvf64_xoshi(d: usize, n: usize) -> Result<Vec<Vec<f64>>,RE> 
 ```
 
 ## Low Level Integer Algorithms
@@ -264,6 +264,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 ```
 
 ## Recent Releases (Latest First)
+
+**Version 1.0.4** Replaced all panics by more thorough error checking and custom errors. 
 
 **Version 1.0.3** Updated the dev dependency.
 

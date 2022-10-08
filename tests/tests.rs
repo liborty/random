@@ -2,10 +2,10 @@
 #![allow(dead_code)]
 #[cfg(test)]
 use times::{bench};
-use ran::{Rnum,Rv,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
+use ran::{Rnum,Rv,RE,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
 
 #[test]
-fn rannums() {
+fn rannums() -> Result<(),RE> {
     set_seeds(777777_u64); 
 
     let rf = Rnum::newf64();
@@ -22,12 +22,12 @@ fn rannums() {
         ru16.rannum_in(60000.,65535.), // wrapped u16, 60000 to 65535 (inclusive)
         ru8.rannum_in(1.,6.)    // wrapped u8, 1 to 6 (inclusive)
     );
-}
+    }
 
-    println!("\n10 random bytes: {}",ru8.ranv(10));
-    println!("5 random pairs of bytes: {}",ru16.ranv(5));
+    println!("\n10 random bytes: {}",ru8.ranv(10)?);
+    println!("5 random pairs of bytes: {}",ru16.ranv(5)?);
     // the following line tests 'getvi64()' instead of relying on Display
-    println!("2 random i64s: {}", stringv(&ri.ranv(2).getvi64()));
+    println!("2 random i64s: {}", stringv(&ri.ranv(2)?.getvi64()?));
 
     // this is expanded here just to demonstrate pattern extraction
     // of the wrapped Vec<u8>, which is not normally needed for just printing it: 
@@ -37,11 +37,12 @@ fn rannums() {
 
     // vec of vecs using ranvv_in(d,n,min,max)
     println!("\n5x5 matrix of integers in range [-10,10]:\n{}",
-        ri.ranvv_in(5,5,-10.,10.))
+        ri.ranvv_in(5,5,-10.,10.)?);
+    Ok(())
 }
 
 #[test]
-fn timing() {
+fn timing() -> Result<(),RE> {
     const D:usize = 10000;
     const N:usize = 20;
     println!( "Generating {} sets of vectors of length {} each",N, D );
@@ -49,13 +50,14 @@ fn timing() {
     const NAMES:[&str;5] = [ "ranvvu8","ranvvu64","ranvvu16","ranvvi64","ranvvf64" ];
 
     const CLOSURES:[fn();5] = [
-        || { ranvvu8(D,N); }, 
-        || { ranvvu64(D,N); }, 
-        || { ranvvu16(D,N); },
-        || { ranvvi64(D,N); },
-        || { ranvvf64(D,N); } ];
+        || { ranvvu8(D,N).unwrap(); }, 
+        || { ranvvu64(D,N).unwrap(); }, 
+        || { ranvvu16(D,N).unwrap(); },
+        || { ranvvi64(D,N).unwrap(); },
+        || { ranvvf64(D,N).unwrap(); } ];
 
     set_seeds(7777777777_u64);   // intialise random numbers generator
     // Rnum encapsulates the type of the data items
     bench(10,&NAMES,&CLOSURES); 
+    Ok(())
 }
