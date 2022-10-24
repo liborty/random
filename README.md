@@ -3,8 +3,7 @@
 [<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/liborty/random/HEAD?logo=github">](https://github.com/liborty/random)
 [<img alt="crates.io" src="https://img.shields.io/crates/v/ran?logo=rust">](https://crates.io/crates/ran)
 [<img alt="crates.io" src="https://img.shields.io/crates/d/ran?logo=rust">](https://crates.io/crates/ran)
-[<img alt="docs.rs" src="https://img.shields.io/docsrs/ran?logo=rust">](https://docs.rs/ran)
-[![Actions Status](https://github.com/liborty/random/workflows/compilation/badge.svg)](https://github.com/liborty/random/actions)
+[<img alt="docs.rs" src="https://img.shields.io/docsrs/ran?logo=rust">](https://docs.rs/ran) [![Actions Status](https://github.com/liborty/random/workflows/test/badge.svg)](https://github.com/liborty/random/actions)
 
 ## Description
 
@@ -18,7 +17,7 @@ Even so, there are four different algorithms on offer, plus a good range of util
 
 The main objective has been the ease of use rather than flat-out speed but the algorithms are neverheless very fast.
 
-It is highly recommended to read and run [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. 
+It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. The output can be seen by clicking the 'test' badge at the top of this document and viewing the latest automated test log.
 
 ## Getting Started
 
@@ -264,6 +263,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 ```
 
 ## Recent Releases (Latest First)
+
+**Version 1.0.5** Added automated tests. Now run by github actions on every new push to the repository.
 
 **Version 1.0.4** Replaced all panics by more thorough error checking and custom errors. 
 
