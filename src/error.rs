@@ -30,8 +30,8 @@ impl<T> fmt::Display for RError<T> where T:Sized+Debug+Display {
 }
 
 /// Example 'From' implementation for converting to RError
-impl From<AccessError> for RError<& 'static str> {
+impl From<AccessError> for RError<String> {
     fn from(_: AccessError) -> Self {
-        RError::OtherError("AccessError")
+        RError::OtherError("AccessError".to_owned())
     }
 }

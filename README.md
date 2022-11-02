@@ -264,6 +264,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.0.6** Introduced String argument into example error conversion.
+
 **Version 1.0.5** Added automated tests. Now run by github actions on every new push to the repository.
 
 **Version 1.0.4** Replaced all panics by more thorough error checking and custom errors. 
