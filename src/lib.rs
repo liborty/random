@@ -3,7 +3,7 @@
 //! Also filling vectors and vectors of vectors with random numbers
 
 /// Custom error RError
-mod error;
+pub mod error;
 /// Implementations of associated functions for the enum types 
 pub mod impls;
 /// The low level type specific generators
