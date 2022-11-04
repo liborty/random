@@ -1,4 +1,4 @@
-use crate::{Rnum,Rv,Rvv,RError,RE,generators::*,secondary::{stringv, stringvv}};
+use crate::{Rnum,Rv,Rvv,RanError,RE,generators::*,secondary::{stringv, stringvv}};
 
 
 /// Implementations of associated functions for enum Rnum.
@@ -18,27 +18,27 @@ impl Rnum {
     /// retrieve f64 from Rnum instance
     pub fn getf64(self) -> Result<f64,RE> { 
         if let Rnum::F64(f) = self { Ok(f) }
-        else { Err(RError::TypeError("getf64 found another type".to_string())) }
+        else { Err(RanError::TypeError("getf64 found another type".to_string())) }
     }
     /// retrieve u64 from Rnum instance
     pub fn getu64(self) -> Result<u64,RE> { 
         if let Rnum::U64(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getu64 found another type".to_string())) }
+        else { Err(RanError::TypeError("getu64 found another type".to_string())) }
     }
     /// retrieve i64 from Rnum instance    
     pub fn geti64(self) -> Result<i64,RE> {  
         if let Rnum::I64(i) = self { Ok(i) }
-        else { Err(RError::TypeError("geti64 found another type".to_string())) }
+        else { Err(RanError::TypeError("geti64 found another type".to_string())) }
     }
     /// retrieve u16 from Rnum instance    
     pub fn getu16(self) -> Result<u16,RE> { 
         if let Rnum::U16(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getu16 found another type".to_string())) } 
+        else { Err(RanError::TypeError("getu16 found another type".to_string())) } 
     }
     /// retrieve u8 from Rnum instance    
     pub fn getu8(self) -> Result<u8,RE> { 
         if let Rnum::U8(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getu8 found another type".to_string())) }
+        else { Err(RanError::TypeError("getu8 found another type".to_string())) }
     } 
 
     /// Extract a T value from an instance of Rnum type    
@@ -138,27 +138,27 @@ impl Rv {
     /// Extract a vector of f64 values from an instance of Rv type
     pub fn getvf64(self) -> Result<Vec<f64>,RE> { 
         if let Rv::F64(f) = self { Ok(f) }
-        else { Err(RError::TypeError("getvf64 failed to find Vec<f64>".to_string())) }
+        else { Err(RanError::TypeError("getvf64 failed to find Vec<f64>".to_string())) }
     }
     /// Extract a vector of u64 value from an instance of Rv type
     pub fn getvu64(self) -> Result<Vec<u64>,RE> { 
         if let Rv::U64(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getvu64 failed to find Vec<u64>".to_string())) } 
+        else { Err(RanError::TypeError("getvu64 failed to find Vec<u64>".to_string())) } 
     }
     /// Extract a vector of i64 value from an instance of Rv type    
     pub fn getvi64(self) -> Result<Vec<i64>,RE> { 
         if let Rv::I64(i) = self { Ok(i) }
-        else { Err(RError::TypeError("getvi64 failed to find Vec<i64>".to_string())) }
+        else { Err(RanError::TypeError("getvi64 failed to find Vec<i64>".to_string())) }
     }
     /// Extract a vector of u16 value from an instance of Rv type    
     pub fn getvu16(self) -> Result<Vec<u16>,RE> { 
         if let Rv::U16(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getvu16 failed to find Vec<u16>".to_string())) } 
+        else { Err(RanError::TypeError("getvu16 failed to find Vec<u16>".to_string())) } 
     }
     /// Extract a vector of u8 value from an instance of Rv type    
     pub fn getvu8(self) -> Result<Vec<u8>,RE> { 
         if let Rv::U8(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getvu8 failed to find Vec<u8>".to_string())) } 
+        else { Err(RanError::TypeError("getvu8 failed to find Vec<u8>".to_string())) } 
     }
     /// Extract a vector of T values from an instance of Rv type    
     pub fn getv_generic<T>( self ) -> Vec<T>
@@ -178,27 +178,27 @@ impl Rvv {
     /// Extract Vec<Vec<f64>>
     pub fn getvvf64(self) -> Result<Vec<Vec<f64>>,RE> { 
         if let Rvv::F64(f) = self { Ok(f) }
-        else { Err(RError::TypeError("getvvf64 failed to find Vec<Vec<f64>>".to_string())) } 
+        else { Err(RanError::TypeError("getvvf64 failed to find Vec<Vec<f64>>".to_string())) } 
     }
     /// Extract Vec<Vec<u64>>    
     pub fn getvvu64(self) -> Result<Vec<Vec<u64>>,RE> { 
         if let Rvv::U64(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getvvu64 failed to find Vec<Vec<u64>>".to_string())) } 
+        else { Err(RanError::TypeError("getvvu64 failed to find Vec<Vec<u64>>".to_string())) } 
     }
     /// Extract Vec<Vec<i64>>    
     pub fn getvi64(self) -> Result<Vec<Vec<i64>>,RE> { 
         if let Rvv::I64(i) = self { Ok(i) }
-        else { Err(RError::TypeError("getvvi64 failed to find Vec<Vec<i64>>".to_string())) } 
+        else { Err(RanError::TypeError("getvvi64 failed to find Vec<Vec<i64>>".to_string())) } 
     }
     /// Extract Vec<Vec<u16>>    
     pub fn getvvu16(self) -> Result<Vec<Vec<u16>>,RE> { 
         if let Rvv::U16(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getvvu16 failed to find Vec<Vec<u16>>".to_string())) } 
+        else { Err(RanError::TypeError("getvvu16 failed to find Vec<Vec<u16>>".to_string())) } 
     }
     /// Extract Vec<Vec<u8>>    
     pub fn getvvu8(self) -> Result<Vec<Vec<u8>>,RE> { 
         if let Rvv::U8(u) = self { Ok(u) }
-        else { Err(RError::TypeError("getvvu8 failed to find Vec<Vec<u8>>".to_string())) }
+        else { Err(RanError::TypeError("getvvu8 failed to find Vec<Vec<u8>>".to_string())) }
     }
     /// Extract a vector of of vectors of T values from an instance of Rvv type    
         pub fn getvv_generic<T>( self ) -> Vec<Vec<T>>

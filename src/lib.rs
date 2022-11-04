@@ -3,7 +3,7 @@
 //! Also filling vectors and vectors of vectors with random numbers
 
 /// Custom error RError
-pub mod error;
+mod error;
 /// Implementations of associated functions for the enum types 
 pub mod impls;
 /// The low level type specific generators
@@ -12,10 +12,10 @@ pub mod generators;
 pub mod secondary;
 
 pub use crate::generators::set_seeds;
-use crate::error::RError;
+pub use crate::error::RanError;
 
 /// Shorthand type for returned errors with message payload
-pub type RE = RError<String>;
+pub type RE = RanError<String>;
 
 /// Wrapper for enum polymorphism - single value
 pub enum Rnum {

@@ -96,15 +96,14 @@ println!("Random numbers in specified ranges: {}, {}, {}, {}",
 );
 ```
 
-They all print because `Display` has been implemented for these three enum types. Their inner wrapped values can be `if let` pattern extracted as follows:
+They all print because `Display` has been implemented for these three enum types. Their wrapped values can be `if let` pattern extracted as follows:
 
 ```rust
-use anyhow::{Result,bail};
-
 if let Rnum::F64(x) = rf { utilise the x:f64 value }
-else {  bail!("rf does not hold value of f64 type!") };
+else {  panic!("rf does not hold value of f64 type!") };
 ```
-The else branch can be used to report disappointed type expectations, as shown (assuming here that `anyhow` crate is being used for error handling). Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. In this case, should this particular extraction attempt fail, it will be just ignored:
+
+The else branch can be used to report disappointed type expectations, as shown. Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. Should such an extraction attempt fail, it will be just skipped:
 
 ```rust
 // wrapped vec of random u8 values
@@ -263,6 +262,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 ```
 
 ## Recent Releases (Latest First)
+
+**Version 1.0.7** Renamed RError -> RanError, so that it is different to `rstats` error.
 
 **Version 1.0.6** Introduced String argument into example error conversion.
 
