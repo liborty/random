@@ -1,5 +1,6 @@
 use std::{thread_local,cell::RefCell};
-use crate::{RE,RanError};
+use crate::Re;
+use crate::error::rerror;
 
 /// Constant for converting u64 numbers to f64s in [0,1).
 /// It is the maximum value of mantissa plus one.
@@ -49,7 +50,7 @@ pub fn put_xoshi(seeds: &[u64;4]) {
     X2.with(|s| *s.borrow_mut() = seeds[2]); 
     X3.with(|s| *s.borrow_mut() = seeds[3]);
 }
-/// Core part of the xoshi algorithms
+/// Core part of the xoshi (xor shift) algorithms
 #[inline]
 pub fn xoshi_step(s: &mut[u64;4]) {    
 	let t = s[1] << 17;
@@ -98,8 +99,7 @@ pub fn ran_irange(min:i64, max:i64) -> i64 {
 pub fn ran_frange(rnum:f64, min:f64, max:f64) -> f64 { (max-min) * rnum + min }
 
 /// Generate f64 random number in the standardised range [0,1).
-/// It can be linearly transformed to any [min,max] range.
-///
+/// It can be linearly transformed to any [min,max] range.  
 /// Very fast, using just three shift and XOR instructions.
 /// Based on: George Marsaglia, Xorshift RNGs, Journal of Statistical Software 08(i14), Jan 2003.
 /// Disclaimer: for cryptography, use real random source.
@@ -116,79 +116,80 @@ pub fn ranf64() -> f64 {
 }
 
 /// Generates vector of size d, filled with full range u64 random numbers.
-pub fn ranvu64(d: usize) -> Result<Vec<u64>,RE> {
-    if d == 0 { Err(RanError::DimensionsError("ranvu64: zero size".to_string())) }
+pub fn ranvu64(d: usize) -> Result<Vec<u64>,Re> {
+    if d == 0 { Err(rerror("dimensions","ranvu64: zero size")) }
     else { Ok((0..d).map(|_|xoshiu64()).collect::<Vec<u64>>())}
 }
 
 /// Generates vector of size d, of u16 random numbers in [0,65535].
 /// You can similarly recast u64 yourself to any other type.
-pub fn ranvu16(d: usize) -> Result<Vec<u16>,RE> {
-    if d == 0 { Err(RanError::DimensionsError("ranvu16: zero size".to_string())) }
+pub fn ranvu16(d: usize) -> Result<Vec<u16>,Re> {
+    if d == 0 { Err(rerror("dimensions","ranvu16: zero size")) }
     else { Ok((0..d).map(|_|ran_ubits(16)as u16).collect::<Vec<u16>>())}
 }
 
 /// Generates vector of size d, of u8 random numbers in [0,255].
 /// You can similarly recast u64 yourself to any other type.
-pub fn ranvu8(d: usize) -> Result<Vec<u8>,RE> {
-    if d == 0 { Err(RanError::DimensionsError("ranvu8: zero size".to_string())) }
+pub fn ranvu8(d: usize) -> Result<Vec<u8>,Re> {
+    if d == 0 { Err(rerror("dimensions","ranvu8: zero size")) }
     else { Ok((0..d).map(|_|ran_ubits(8)as u8).collect::<Vec<u8>>())}
 }
 
 /// Generates vector of size d, of i64 random numbers.
-pub fn ranvi64(d: usize) -> Result<Vec<i64>,RE> {
-    if d == 0 { Err(RanError::DimensionsError("ranvi64: zero size".to_string())) }
+pub fn ranvi64(d: usize) -> Result<Vec<i64>,Re> {
+    if d == 0 { Err(rerror("dimensions","ranvi64: zero size")) }
     else { Ok((0..d).map(|_|xoshiu64() as i64).collect::<Vec<i64>>())}
 }
 
 /// Generates vector of size d, of i64 random numbers in the interval [min,max].
 /// May include zero.
-pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Result<Vec<i64>,RE> {
-    if d == 0 { Err(RanError::DimensionsError("ranvi64_in: zero size".to_string())) }
+pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Result<Vec<i64>,Re> {
+    if d == 0 { Err(rerror("dimensions","ranvi64_in: zero size")) }
+    else if min >= max { Err(rerror("range",format!("ranvi64_in: {min} {max}"))) }
     else { Ok((0..d).map(|_|ran_irange(min,max)).collect::<Vec<i64>>())}
 }
 
 /// Generates vector of size d, of f64 random numbers in [0,1).
-pub fn ranvf64(d: usize) -> Result<Vec<f64>,RE> {
-    if d == 0 { Err(RanError::DimensionsError("ranvi64_in: zero size".to_string())) }
+pub fn ranvf64(d: usize) -> Result<Vec<f64>,Re> {
+    if d == 0 { Err(rerror("dimensions","ranvf64: zero size")) } 
     else { Ok((0..d).map(|_|ranf64()).collect::<Vec<f64>>())}
 }
 
 /// Generates n vectors of size d each, of full range u64 random numbers.
-pub fn ranvvu64(d: usize, n: usize) -> Result<Vec<Vec<u64>>,RE> {
-    if n * d <= 1 { Err(RanError::DimensionsError(format!("ranvvu64: {} {}",d,n))) }
-    else { (0..n).map(|_|ranvu64(d)).collect::<Result<Vec<Vec<u64>>,RE>>() }
+pub fn ranvvu64(d: usize, n: usize) -> Result<Vec<Vec<u64>>,Re> {
+    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvu64: {d} {n}"))) }
+    else { (0..n).map(|_|ranvu64(d)).collect::<Result<Vec<Vec<u64>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of u16 random numbers in the interval [0,65535].
-pub fn ranvvu16(d: usize, n: usize) -> Result<Vec<Vec<u16>>,RE> {
-    if n * d <= 1 { Err(RanError::DimensionsError(format!("ranvvu16: {} {}",d,n))) }
-    else { (0..n).map(|_|ranvu16(d)).collect::<Result<Vec<Vec<u16>>,RE>>() }
+pub fn ranvvu16(d: usize, n: usize) -> Result<Vec<Vec<u16>>,Re> {
+    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvu16: {d} {n}"))) } 
+    else { (0..n).map(|_|ranvu16(d)).collect::<Result<Vec<Vec<u16>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of u8 random numbers in the interval [0,255].
-pub fn ranvvu8(d: usize, n: usize) -> Result<Vec<Vec<u8>>,RE> {
-    if n * d <= 1 { Err(RanError::DimensionsError(format!("ranvvu8: {} {}",d,n))) }
-    else { (0..n).map(|_|ranvu8(d)).collect::<Result<Vec<Vec<u8>>,RE>>() }
+pub fn ranvvu8(d: usize, n: usize) -> Result<Vec<Vec<u8>>,Re> {
+    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvu8: {d} {n}"))) } 
+    else { (0..n).map(|_|ranvu8(d)).collect::<Result<Vec<Vec<u8>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
-pub fn ranvvi64(d: usize, n: usize) -> Result<Vec<Vec<i64>>,RE> {
-    if n * d <= 1 { Err(RanError::DimensionsError(format!("ranvvi64: {} {}",d,n))) }
-    else { (0..n).map(|_|ranvi64(d)).collect::<Result<Vec<Vec<i64>>,RE>>()}
+pub fn ranvvi64(d: usize, n: usize) -> Result<Vec<Vec<i64>>,Re> {
+    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvi64: {d} {n}"))) } 
+    else { (0..n).map(|_|ranvi64(d)).collect::<Result<Vec<Vec<i64>>,Re>>()}
 }
 
 /// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
-pub fn ranvvi64_in(d: usize, n: usize, min:i64, max:i64) -> Result<Vec<Vec<i64>>,RE> {
-    if n * d <= 1 { Err(RanError::DimensionsError(format!("ranvvi64_in: {} {}",d,n))) }
-    else if min >= max { Err(RanError::RangeError(format!("ranvvi64_in: {} {}",min,max))) }
-    else { (0..n).map(|_|ranvi64_in(d,min,max)).collect::<Result<Vec<Vec<i64>>,RE>>() }
+pub fn ranvvi64_in(d: usize, n: usize, min:i64, max:i64) -> Result<Vec<Vec<i64>>,Re> {
+    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvi64_in: {d} {n}"))) }    
+    else if min >= max { Err(rerror("range",format!("ranvvi64_in: {min} {max}"))) }
+    else { (0..n).map(|_|ranvi64_in(d,min,max)).collect::<Result<Vec<Vec<i64>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
-pub fn ranvvf64(d: usize, n: usize) -> Result<Vec<Vec<f64>>,RE> {
-    if n * d <= 1 { Err(RanError::DimensionsError(format!("ranvvf64: {} {}",d,n))) }
-    else { (0..n).map(|_|ranvf64(d)).collect::<Result<Vec<Vec<f64>>,RE>>()}
+pub fn ranvvf64(d: usize, n: usize) -> Result<Vec<Vec<f64>>,Re> {
+    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvf64: {d} {n}"))) }
+    else { (0..n).map(|_|ranvf64(d)).collect::<Result<Vec<Vec<f64>>,Re>>()}
 }
 
 /// Simple SPLITMIX64 fast generator recommended for generating the initial sequence of seeds.
@@ -228,13 +229,13 @@ pub fn xoshif64() -> f64 {
 
 /// Generates vector of size d, of f64 random numbers in [0,1).
 /// Bit slower but otherwise superior to `ranvf64`.
-pub fn ranvf64_xoshi(d: usize) -> Result<Vec<f64>,RE> {
-    if d == 0 { Err(RanError::DimensionsError(format!("ranvf64_xoshi: {}",d))) }
+pub fn ranvf64_xoshi(d: usize) -> Result<Vec<f64>,Re> {
+    if d == 0 { Err(rerror("dimensions",format!("ranvf64_xoshi: {d}"))) }
     else { Ok((0..d).map(|_|xoshif64()).collect::<Vec<f64>>()) }
 }
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
-pub fn ranvvf64_xoshi(d: usize, n: usize) -> Result<Vec<Vec<f64>>,RE> {
-    if n * d < 1 { Err(RanError::DimensionsError(format!("ranvvf64_xoshi: {} {}",d,n))) }
+pub fn ranvvf64_xoshi(d: usize, n: usize) -> Result<Vec<Vec<f64>>,Re> {
+    if n * d < 1 { Err(rerror("dimensions",format!("ranvvf64_xoshi: {d} {n}"))) }
     else { (0..n).map(|_|ranvf64_xoshi(d)).collect() }
 }

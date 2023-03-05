@@ -263,6 +263,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.1.0** More ergonomic error handling. Renamed RanError<String> alias type to `Re`. Introduced function `rerror`.
+
 **Version 1.0.7** Renamed RError -> RanError, so that it is different to `rstats` error.
 
 **Version 1.0.6** Introduced String argument into example error conversion.

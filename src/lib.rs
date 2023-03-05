@@ -12,10 +12,7 @@ pub mod generators;
 pub mod secondary;
 
 pub use crate::generators::set_seeds;
-pub use crate::error::RanError;
-
-/// Shorthand type for returned errors with message payload
-pub type RE = RanError<String>;
+pub use crate::error::{RanError,Re};
 
 /// Wrapper for enum polymorphism - single value
 pub enum Rnum {
