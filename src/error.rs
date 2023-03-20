@@ -18,7 +18,7 @@ pub enum RanError<T> {
     Other(T)
 }
 
-impl Error for Re {} // anError<T> where T:Debug+Display+Clone {}
+impl Error for Re {} 
 
 impl fmt::Display for Re {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { 

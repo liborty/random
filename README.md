@@ -23,7 +23,7 @@ It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/r
 
 ```rust
 use ran::*; or
-use ran::{set_seeds,RE,Rnum,Rv,Rvv};
+use ran::{set_seeds,rerror,RE,Rnum,Rv,Rvv};
 ```
 
 These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different, random sequence. Of course, the same seed will always produce the same sequence and this is sometimes actually useful for exact testing comparisons.
@@ -263,7 +263,7 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
-**Version 1.1.0** More ergonomic error handling. Renamed RanError<String> alias type to `Re`. Introduced function `rerror`.
+**Version 1.1.0** More ergonomic error handling. Renamed `RanError<String>` alias type to `Re`. Introduced function `rerror`.
 
 **Version 1.0.7** Renamed RError -> RanError, so that it is different to `rstats` error.
 

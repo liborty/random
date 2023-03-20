@@ -35,6 +35,10 @@ fn rannums() -> Result<(),Re> {
     if let Rv::U8(vecu8) = ru8.ranv_in(20,1.,6.) {
        println!("\nDice roll: {}",stringv(&vecu8)) };
 
+    // ten random binary numbers
+    if let Rv::U8(vecu8) = ru8.ranv_in(10,0.,1.) {
+        println!("\nBinary numbers: {}",stringv(&vecu8)) };   
+
     // vec of vecs using ranvv_in(d,n,min,max)
     println!("\n5x5 matrix of integers in range [-10,10]:\n{}",
         ri.ranvv_in(5,5,-10.,10.)?);
