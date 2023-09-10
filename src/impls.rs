@@ -44,14 +44,14 @@ impl Rnum {
 
     /// Extract a T value from an instance of Rnum type    
     pub fn get_generic<T>( self ) -> T
-        where T:Clone+From<u8>+From<u16>+From<f64>+From<u64>+From<i64> {
+        where T:Clone+From<u8>+From<u16>+From<f64>+From<u64>+From<i64> { 
         match self {
-            Rnum::U8(rn) => T::from(rn),
-            Rnum::U16(rn) => T::from(rn),
-            Rnum::U64(rn) => T::from(rn),
-            Rnum::I64(rn) => T::from(rn),
-            Rnum::F64(rn) => T::from(rn)
-            }
+            Rnum::U8(rn) => rn.into(),
+            Rnum::U16(rn) => rn.into(),
+            Rnum::U64(rn) => rn.into(),
+            Rnum::I64(rn) => rn.into(),
+            Rnum::F64(rn) => rn.into()
+            } 
         }
 
     /// generate a single random number of required type, in full range
@@ -99,7 +99,7 @@ impl Rnum {
             Rnum::I64(_) => Rv::I64((0..d).map(|_|
                 ran_irange(min as i64,max as i64)).collect()),
             Rnum::U16(_) =>  Rv::U16((0..d).map(|_|
-                    ran_urange(min as u64, max as u64)as u16).collect()),
+                ran_urange(min as u64, max as u64)as u16).collect()),
             Rnum::U8(_) =>  Rv::U8((0..d).map(|_|
                 ran_urange(min as u64, max as u64)as u8).collect()),
         }        

@@ -1,18 +1,26 @@
 // #![allow(unused_imports)]
 #![allow(dead_code)]
 #[cfg(test)]
-use times::{bench};
+use times::bench;
 use ran::{Rnum,Rv,Re,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
 
 #[test]
 fn rannums() -> Result<(),Re> {
-    set_seeds(777777_u64); 
 
     let rf = Rnum::newf64();
     let ru = Rnum::newu64();
     let ri = Rnum::newi64();
     let ru16 = Rnum::newu16();
     let ru8 = Rnum::newu8();
+
+    println!("\nSingle byte: {}",ru8.rannum().getu8()?); 
+    let vecu8 = ru8.ranv(10)?.getvu8()?;
+    println!("Vec of bytes: {}",stringv(&vecu8)); 
+    if let Rv::U8(newvecu8) = ru8.ranv(10)? {
+        println!("Vec of bytes: {}\n",stringv(&newvecu8));
+    } else {
+        println!("Error to process here\n");
+    };   
 
     for _i in 1..5 {
     println!("f64: {},\nu64: {},\ni64: {},\nu16: {}, \nu8: {}\n",

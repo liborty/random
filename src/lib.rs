@@ -14,7 +14,7 @@ pub mod secondary;
 pub use crate::generators::set_seeds;
 pub use crate::error::{RanError,Re};
 
-/// Wrapper for enum polymorphism - single value
+/// Wrapper for enum polymorphism - supported end types
 pub enum Rnum {
     /// f64 encapsulation
     F64(f64),

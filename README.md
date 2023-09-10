@@ -1,13 +1,8 @@
-# Ran
-
-[<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/liborty/random/HEAD?logo=github">](https://github.com/liborty/random)
-[<img alt="crates.io" src="https://img.shields.io/crates/v/ran?logo=rust">](https://crates.io/crates/ran)
-[<img alt="crates.io" src="https://img.shields.io/crates/d/ran?logo=rust">](https://crates.io/crates/ran)
-[<img alt="docs.rs" src="https://img.shields.io/docsrs/ran?logo=rust">](https://docs.rs/ran) [![Actions Status](https://github.com/liborty/random/workflows/test/badge.svg)](https://github.com/liborty/random/actions)
+# Ran [![crates.io](https://img.shields.io/crates/v/ran?logo=rust)](https://crates.io/crates/ran) [![crates.io](https://img.shields.io/crates/d/ran?logo=rust)](https://crates.io/crates/ran) [![GitHub last commit](https://img.shields.io/github/last-commit/liborty/random/HEAD?logo=github)](https://github.com/liborty/random) [![Actions Status](https://github.com/liborty/random/workflows/test/badge.svg)](https://github.com/liborty/random/actions)
 
 ## Description
 
-The rationale for this crate is to generate good quality random numbers fast, simply and with a minimal footprint.
+The rationale for this crate is to generate good quality random numbers fast, simply and with a minimal footprint. It is written in 100% safe Rust.
 
 Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing ( looking at the 'other' crate: `rand` ).
 
@@ -15,18 +10,15 @@ In contradistinction, this crate is lightweight and it has no dependencies.
 
 Even so, there are four different algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors filled with random numbers.
 
-The main objective has been the ease of use rather than flat-out speed but the algorithms are neverheless very fast.
+The main objective has been the ease of use but the algorithms are also very fast.
 
 It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. The output can be seen by clicking the 'test' badge at the top of this document and viewing the latest automated test log.
 
 ## Getting Started
 
-```rust
-use ran::*; or
-use ran::{set_seeds,rerror,RE,Rnum,Rv,Rvv};
-```
+These algorithms use thread safe static seeds, initialised automatically to `systime` seconds. Therefore, if you were to generate a new random sequence every second, they will all be different for 6.337617562E+56 years. That means that they are for practical purposes unpredictable but not in the cryptographic sense.
 
-These algorithms use thread safe static seeds. It is strongly recommended to initialise them with `set_seeds(value);` in every thread where you may want to be generating random numbers, otherwise you will get the same sequence every time, based on the default value. Any u64 value will do to initiate a new, different, random sequence. Of course, the same seed will always produce the same sequence and this is sometimes actually useful for exact testing comparisons.
+For repeatable random sequences, initialise the seeds to a known fixed value with `set_seeds(value);` Each u64 value generates unique random sequence. This is sometimes useful for exact comparisons, i.e. different algorithms tested on exactly the same random data.
 
 ```rust
 /// This function initialises SEED and xoshi seeds X0-X3. 
@@ -35,46 +27,41 @@ These algorithms use thread safe static seeds. It is strongly recommended to ini
 pub fn set_seeds( seed:u64 )
 ```
 
-## Generic Usage
-
-Simple instructive example to generate a dxn matrix of random bytes:
-
-```rust 
-    let matrix = Rnum::newu8().ranvv(d, n)?.getvvu8()?;
-```
-
-First we created Rnum instance for the required type (u8). This can be saved with let statement and reused for repeated generations of values, vectors and matrices of the same end type. Next we call on it generic method `ranv(d,n)`, that generates random numbers. Finally, we retrieve the matrix from its wrapper with `getvvu8()`. The last two methods must agree on the target object, in this case both indicate `vv` = `vec of vecs`. They both potentially return custom error `RE`: here we are just passing it up with the `?` operator.
-
-Polymorphic interface avoids having to use different typed functions for each primitive type. This can be too repetitive, given that there are quite a few primitive numeric types. Nevertheless, such typed functions are also available in (`use ran::generators::*;`). They can be used in simple applications directly (see below, section Explicitly Typed Functions).
-
-In `lib.rs` we define three polymorphic (generic) enum types:
+Examples to generate a single random byte and vectors of random bytes:
 
 ```rust
-/// Wrapper for enum polymorphism - single value
+let ru8 = Rnum::newu8();
+
+println!("\nSingle byte: {}",ru8.rannum().getu8()?); 
+
+let vecu8 = ru8.ranv(10)?.getvu8()?;
+println!("Vec of bytes: {}",stringv(&vecu8));
+
+if let Rv::U8(newvecu8) = ru8.ranv(10)? {
+    println!("Vec of bytes: {}",stringv(&newvecu8));
+} else {
+    println!("Error to process here");
+};
+```
+
+First we created Rnum instance `ru8` to communicate the required end type of the random numbers (u8). This can be reused later for repeated generations of single values, vectors and matrices of the same type.  
+Next we call its associated generic function `rannum()` which generates the value. Finally we unwrap the result with `getu8()`, which will produce an error if the types do not match, so we simply pass the error up with `?` operator.  
+Next we similarly generate a whole vector of random bytes. Note the additional `v` (for vector) inserted in the function names. The names of the generating method and the unwrapping method must always agree on the target. (`stringv()` is just a utility to print vectors of any type.)  
+In the last example we do the same thing but extract the vector ourselves by pattern matching within `if let`.
+
+This polymorphic interface avoids having to use different typed functions for each end type. That is too repetitive, given that there are quite a few primitive numeric types. Nevertheless, some such typed functions are also available in (`use ran::generators::*;`). They can be used in simple applications directly (see below, in section Explicitly Typed Functions).
+
+`Rnum` is defined in `lib.rs` as:
+
+```rust
+/// Wrapper for enum polymorphism - supported end types
 pub enum Rnum {
     F64(f64), U64(u64), I64(i64), U16(u16), U8(u8)
     // Should be extended to cover all numeric types?
 }
-
-/// Wrapper for enum polymorphism - vectors
-pub enum Rv { 
-    F64(Vec<f64>), U64(Vec<u64>), I64(Vec<i64>), U16(Vec<u16>), U8(Vec<u8>)
-}
-
-/// Wrapper for enum polymorphism - vectors of vectors
-pub enum Rvv { 
-    F64(Vec<Vec<f64>>),
-    U64(Vec<Vec<u64>>),
-    I64(Vec<Vec<i64>>),
-    U16(Vec<Vec<i16>>),
-    U8(Vec<Vec<u8>>)
-}
 ```
 
-Their filling with random numbers of required types is done by their `associated functions`, defined in module `impls.rs`.
- First create an instance of one of these types. For single random numbers, it will be enum type `Rnum`, of the variant  corresponding to the end-type of the random numbers wanted.
- 
- `Rnum, Rv, Rvv` are just wrapper enum types, serving to communicate to the generic method(s) information about the actual type of the (random) number(s) wanted. The following example shows how to create instance variables for all them:
+`Rnum` is serving only to communicate to its `associated functions`, defined in module `impls.rs`, information about the end type wanted. The functions then fill in the random numbers of the required type. Some, optionally, extract the results. The following example shows how to create instance variables for all the supported end types:
 
 ```rust
 let rf = Rnum::newf64();
@@ -96,14 +83,9 @@ println!("Random numbers in specified ranges: {}, {}, {}, {}",
 );
 ```
 
-They all print because `Display` has been implemented for these three enum types. Their wrapped values can be `if let` pattern extracted as follows:
+They all print directly because `Display` has been implemented for `Rnum` (and other enum wrapper types: `Rv,Rvv`). So there is actually no need to extract the values just for printing, as we had done in the first examples.
 
-```rust
-if let Rnum::F64(x) = rf { utilise the x:f64 value }
-else {  panic!("rf does not hold value of f64 type!") };
-```
-
-The else branch can be used to report disappointed type expectations, as shown. Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. Should such an extraction attempt fail, it will be just skipped:
+When pattern extracting with the `if let` clause, the else branch can be used to report disappointed type expectations. Alternatively, `else` can be used to return some default value, e.g. `{0_f64}` or it can be dismissed with a semicolon, using `if let` as a statement, rather than as an expression. Should such an extraction attempt fail, it will be just skipped:
 
 ```rust
 // wrapped vec of random u8 values
@@ -111,7 +93,7 @@ if let Rv::U8(vx) = ru8.ranv_in(20,1.,6.)?
     {  println!("Dice roll sequence: {}", stringv(&vx)) };
 ```
 
-This example illustrated the use of enum type `Rv`, used for vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. (The helper function `stringv` from module `secondary.rs` converted the extracted vector to a String to facilitate its printing). Of course, Rv type object (unextracted) would print as it is.
+This example illustrates the use of enum type `Rv`, used for vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Of course, Rv type object (unextracted) would print as it is.
 
 There is also enum type `Rvv` for returning vectors of vectors of random numbers:
 
@@ -122,7 +104,8 @@ println!(
     ri.ranvv_in(5,5,-10.,10.)?
 );
 ```
-`stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Dislay` is implemented for `Rvv` type and we did not bother to extract the wrapped value (vector of vectors).
+
+`stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Dislay` is implemented for `Rvv` type and we did not need to extract the wrapped value (vector of vectors).
 
 The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`.
 
@@ -136,9 +119,9 @@ println!("2 random i64s: {}", stringv(&pairofints));
 
 ## Generic Methods
 
-Initialisation: the Self produced is `Rnum` type and will contain the default value zero of the required numeric end type.
+Initialisations: the Self produced is `Rnum` type and will contain the default value zero of the required numeric end type.
 
-```rust    
+```rust
 pub fn newf64() -> Self  
 pub fn newu64() -> Self    
 pub fn newi64() -> Self 
@@ -231,9 +214,7 @@ pub fn ranvvf64_xoshi(d: usize, n: usize) -> Result<Vec<Vec<f64>>,RE>
 
 * `xoshiu64()` generates u64 random numbers in full 64 bit range and 2^256 state space. That means the sequence is not going to repeat for a very long time. This algorithm is used to construct random numbers of all (unsigned) integer types and ranges up to 64 bits.
 
-* `splitmix()` also generates u64 numbers. It is used here only to generate the initial seeds for the 'xoshi' type algorithms.
-
-Some transformation wrappers for `xoshiu64()`:
+  Some transformation wrappers for `xoshiu64()`:
 
 ```rust
 /// Get random numbers of various smaller unsigned integer 
@@ -247,6 +228,8 @@ pub fn ran_urange(min:u64, max:u64) -> u64
 /// Generate i64 random number in the interval [min,max].
 pub fn ran_irange(min:i64, max:i64) -> i64 
 ```
+
+* `splitmix()` also generates u64 numbers. It is used here only to generate the initial seeds for the 'xoshi' type algorithms.
 
 ## Low Level Floating Point Algorithms
 
@@ -263,6 +246,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.1.1** The seeds are now automatically initiated to the systime seconds, so the sequences are unpredictable. Initialise the seed manually to a previously used value when the same sequence is required.
+
 **Version 1.1.0** More ergonomic error handling. Renamed `RanError<String>` alias type to `Re`. Introduced function `rerror`.
 
 **Version 1.0.7** Renamed RError -> RanError, so that it is different to `rstats` error.
@@ -271,7 +256,7 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 **Version 1.0.5** Added automated tests. Now run by github actions on every new push to the repository.
 
-**Version 1.0.4** Replaced all panics by more thorough error checking and custom errors. 
+**Version 1.0.4** Replaced all panics by more thorough error checking and custom errors.
 
 **Version 1.0.3** Updated the dev dependency.
 

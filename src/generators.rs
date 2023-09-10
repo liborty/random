@@ -1,4 +1,5 @@
-use std::{thread_local,cell::RefCell};
+use std::{thread_local,cell::RefCell,time::UNIX_EPOCH};
+
 use crate::Re;
 use crate::error::rerror;
 
@@ -7,28 +8,28 @@ use crate::error::rerror;
 pub const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53
 
 thread_local!(
-    /// SEED is used by `ranf64` and/or `splitmix` algorithms
-    /// initialises SEED to a default value, in case user omits to set it
-    pub static SEED: RefCell<u64> = RefCell::new(555555555_u64);
-    /// X0-X3 is used by all xoshiro type algorithms
-    static X0: RefCell<u64> = RefCell::new(111111111_u64);
-    static X1: RefCell<u64> = RefCell::new(222222222_u64);
-    static X2: RefCell<u64> = RefCell::new(333333333_u64);
-    static X3: RefCell<u64> = RefCell::new(444444444_u64);
+    /// SEED is used by `ranf64` and/or `splitmix` algorithms.
+    /// It is initialised by default to systime seconds.
+    pub static SEED: RefCell<u64> = RefCell::new(UNIX_EPOCH.elapsed().unwrap().as_secs());
+    /// X0-X3 seeds, derived here from SEED, are used by all xoshiro type algorithms
+    static X0: RefCell<u64> = RefCell::new(splitmix());
+    static X1: RefCell<u64> = RefCell::new(splitmix());
+    static X2: RefCell<u64> = RefCell::new(splitmix());
+    static X3: RefCell<u64> = RefCell::new(splitmix()); 
 );
 
-/// This function initialises SEED and xoshi seeds X0-X3. 
-/// The supplied value must be > 0, 
-/// otherwise seeds will remain unchanged.
+/// Manual initialisation of SEED (and derived xoshi seeds X0-X3). 
+/// The supplied value must be > 0, otherwise seeds will remain unchanged.
+/// To be used only when a reproducible random sequence is required.
+/// The same sequence can be generated later by resetting the seed to the same value.
 pub fn set_seeds( seed:u64 ) { 
     if seed == 0 { return };
     SEED.with(|s| *s.borrow_mut() = seed);    
     reset_xoshi();
 }
 
-/// Resets xoshi seeds without changing the main SEED.
-/// There is usually no need to reset any already running seeds.
-pub fn reset_xoshi() { 
+/// Resets xoshi seeds. Automatically called by `set_seeds()`.
+fn reset_xoshi() { 
     let seeds = [ splitmix(), splitmix(), splitmix(), splitmix() ];
     put_xoshi(&seeds);
 }
@@ -64,6 +65,7 @@ pub fn xoshi_step(s: &mut[u64;4]) {
 
 /// get the SEED values
 pub fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
+
 /// put the SEED values
 pub fn put_seed(seed:u64) { SEED.with(|s| *s.borrow_mut() = seed) }
 

@@ -1,4 +1,4 @@
-use std::{fmt::Write};
+use std::fmt::Write;
 
 /// stringifies a generic slice for printing
 pub fn stringv<T>(x:&[T]) -> String where T: std::fmt::Display { 
