@@ -8,22 +8,23 @@ Not everyone wants to add 375 kB, plus another ten dependencies, just to generat
 
 In contradistinction, this crate is lightweight and it has no dependencies.
 
-Even so, there are four different algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors filled with random numbers.
+Even so, there are four different generating algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors, all filled with random numbers.
 
 The main objective has been the ease of use but the algorithms are also very fast.
 
-It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. The output can be seen by clicking the 'test' badge at the top of this document and viewing the latest automated test log.
+It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. The output can be seen by clicking the 'test' badge at the top of this document and viewing the latest automated test log. The badges are also links.
 
 ## Getting Started
 
-These algorithms use thread safe static seeds, initialised automatically to `systime` seconds. Therefore, if you were to generate a new random sequence every second, they will all be different for 6.337617562E+56 years. That means that they are for practical purposes unpredictable but not in the cryptographic sense.
+These algorithms use thread safe static seeds, initialised automatically at compile time to `systime` seconds. Therefore, if you were to recompile your program and generate a new random sequence every second, they will all be different for `6.337617562E+56` years. That means that they are for practical purposes unpredictable. Warning: not in the cryptographic sense.
 
-For repeatable random sequences, initialise the seeds to a known fixed value with `set_seeds(value);` Each u64 value generates unique random sequence. This is sometimes useful for exact comparisons, i.e. different algorithms tested on exactly the same random data.
+For an unpredictable sequence at each run, use `set_seeds(0);`. This will set the seed to `systime` nanoseconds. You might then hit the same sequence sometime but only with probability `2E-64`. This is useful in simulations.
+
+For repeatable random sequences, initialise the seeds to a known fixed value with `set_seeds(value);` Each u64 value generates its own unique random sequence. This is useful for exact comparisons, i.e. different algorithms tested on exactly the same (but random) data.
 
 ```rust
 /// This function initialises SEED and xoshi seeds X0-X3. 
-/// The supplied value must be non zero, 
-/// otherwise seeds will remain unchanged.
+/// seed == 0 uses systime nanoseconds
 pub fn set_seeds( seed:u64 )
 ```
 
@@ -245,6 +246,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 ```
 
 ## Recent Releases (Latest First)
+
+**Version 1.1.2** The seed is initialised at compile time. This means that the same executable will still always produce the same sequence. For complete unpredictability, `set_seeds(0)` can newly be used.
 
 **Version 1.1.1** The seeds are now automatically initiated to the systime seconds, so the sequences are unpredictable. Initialise the seed manually to a previously used value when the same sequence is required.
 

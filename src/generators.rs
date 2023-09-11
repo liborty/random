@@ -19,12 +19,15 @@ thread_local!(
 );
 
 /// Manual initialisation of SEED (and derived xoshi seeds X0-X3). 
-/// The supplied value must be > 0, otherwise seeds will remain unchanged.
-/// To be used only when a reproducible random sequence is required.
-/// The same sequence can be generated later by resetting the seed to the same value.
+/// When seed == 0, resets SEED to systime in nanoseconds, 
+/// producing an essentially unpredictable random sequence.
+/// Otherwise sets the SEED to the argument value.
+/// This will repeat the same sequence for each value.
 pub fn set_seeds( seed:u64 ) { 
-    if seed == 0 { return };
-    SEED.with(|s| *s.borrow_mut() = seed);    
+    let newseed = if seed == 0 { 
+        UNIX_EPOCH.elapsed().unwrap().as_nanos() as u64
+    } else { seed };
+    SEED.with(|s| *s.borrow_mut() = newseed);    
     reset_xoshi();
 }
 
