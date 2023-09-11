@@ -10,7 +10,7 @@ In contradistinction, this crate is lightweight and it has no dependencies.
 
 Even so, there are four different generating algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors, all filled with random numbers.
 
-The main objective has been the ease of use but the algorithms are also very fast.
+The main objective has been the ease of use but the algorithms are also very fast. They are mostly of the modern 'xoshi' type, i.e. using the XOr and SHIft instructions. The references are given below.
 
 It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. The output can be seen by clicking the 'test' badge at the top of this document and viewing the latest automated test log. The badges are also links.
 
