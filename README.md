@@ -1,16 +1,15 @@
 # Ran [![crates.io](https://img.shields.io/crates/v/ran?logo=rust)](https://crates.io/crates/ran) [![crates.io](https://img.shields.io/crates/d/ran?logo=rust)](https://crates.io/crates/ran) [![GitHub last commit](https://img.shields.io/github/last-commit/liborty/random/HEAD?logo=github)](https://github.com/liborty/random) [![Actions Status](https://github.com/liborty/random/workflows/test/badge.svg)](https://github.com/liborty/random/actions)
 
+## Author: Libor Spacek
+
 ## Description
 
-The rationale for this crate is to generate good quality random numbers fast, simply and with a minimal footprint. It is written in 100% safe Rust.
-
-Not everyone wants to add 375 kB, plus another ten dependencies, just to generate a bunch of random numbers for testing ( looking at the 'other' crate: `rand` ).
-
-In contradistinction, this crate is lightweight and it has no dependencies.
+The objective of this crate is to generate excellent quality random numbers fast, simply and with a minimal footprint. It is written in 100% safe Rust, 
+is lightweight and has no dependencies.
 
 Even so, there are four different generating algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors, all filled with random numbers.
 
-The main objective has been the ease of use but the algorithms are also very fast. They are mostly of the modern 'xoshi' type, i.e. using the XOr and SHIft instructions. The references are given below.
+The main objective has been the ease of use but the algorithms are also very fast. They are mostly of the modern 'xoshi' type, i.e. using the XOr and SHIft instructions. The references are given in the text.
 
 It is highly recommended to read [`tests/tests.rs`](https://github.com/liborty/random/blob/main/tests/tests.rs) with examples of usage. The output can be seen by clicking the 'test' badge at the top of this document and viewing the latest automated test log. The badges are also links.
 
@@ -23,8 +22,8 @@ For an unpredictable sequence at each run, use `set_seeds(0);`. This will set th
 For repeatable random sequences, initialise the seeds to a known fixed value with `set_seeds(value);` Each u64 value generates its own unique random sequence. This is useful for exact comparisons, i.e. different algorithms tested on exactly the same (but random) data.
 
 ```rust
-/// This function initialises SEED and xoshi seeds X0-X3. 
-/// seed == 0 uses systime nanoseconds
+/// This function initialises SEED (and private xoshi seeds X0-X3). 
+/// seed == 0 will use systime nanoseconds (new random sequence).
 pub fn set_seeds( seed:u64 )
 ```
 
@@ -247,24 +246,10 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.1.3** Some code simplification made possible by Rust 1.73.0. Also changed `rerror` utility to return `Result`.
+
 **Version 1.1.2** The seed is initialised at compile time. This means that the same executable will still always produce the same sequence. For complete unpredictability, `set_seeds(0)` can newly be used.
 
 **Version 1.1.1** The seeds are now automatically initiated to the systime seconds, so the sequences are unpredictable. Initialise the seed manually to a previously used value when the same sequence is required.
 
 **Version 1.1.0** More ergonomic error handling. Renamed `RanError<String>` alias type to `Re`. Introduced function `rerror`.
-
-**Version 1.0.7** Renamed RError -> RanError, so that it is different to `rstats` error.
-
-**Version 1.0.6** Introduced String argument into example error conversion.
-
-**Version 1.0.5** Added automated tests. Now run by github actions on every new push to the repository.
-
-**Version 1.0.4** Replaced all panics by more thorough error checking and custom errors.
-
-**Version 1.0.3** Updated the dev dependency.
-
-**Version 1.0.2** Fixed dimension error in `ranvv_in`. Updated dev-depency from `devtimer` to `times`. Added a timing test.
-
-**Version 1.0.1** Added generic get functions to unpack the data but note that they will only work if all the `From` converters have been fully implemented. `get_generic` upacks Rnum type, `getv_generic` unpacks Rv type and `getvv_generic` unpacks Rvv type.
-
-**Version 1.0.0** No substantive changes for a while, upgrading to Version 1.0.0.

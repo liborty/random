@@ -1,4 +1,5 @@
-use std::{thread_local,cell::RefCell,time::UNIX_EPOCH};
+use core::cell::Cell;
+use std::time::UNIX_EPOCH;
 
 use crate::Re;
 use crate::error::rerror;
@@ -10,49 +11,38 @@ pub const MANTISSA_MAX: f64 = (1u64 << f64::MANTISSA_DIGITS) as f64; // is 2^53
 thread_local!(
     /// SEED is used by `ranf64` and/or `splitmix` algorithms.
     /// It is initialised by default to systime seconds.
-    pub static SEED: RefCell<u64> = RefCell::new(UNIX_EPOCH.elapsed().unwrap().as_secs());
+    pub static SEED: Cell<u64> = UNIX_EPOCH.elapsed().unwrap().as_secs().into();
+    /// pub static SEED: RefCell<u64> = RefCell::new(UNIX_EPOCH.elapsed().unwrap().as_secs());
     /// X0-X3 seeds, derived here from SEED, are used by all xoshiro type algorithms
-    static X0: RefCell<u64> = RefCell::new(splitmix());
-    static X1: RefCell<u64> = RefCell::new(splitmix());
-    static X2: RefCell<u64> = RefCell::new(splitmix());
-    static X3: RefCell<u64> = RefCell::new(splitmix()); 
+    static X0: Cell<u64> = splitmix().into();
+    static X1: Cell<u64> = splitmix().into();
+    static X2: Cell<u64> = splitmix().into();
+    static X3: Cell<u64> = splitmix().into();
 );
 
-/// Manual initialisation of SEED (and derived xoshi seeds X0-X3). 
+/// Manual initialisation of SEED (and derived xoshi seeds). 
 /// When seed == 0, resets SEED to systime in nanoseconds, 
 /// producing an essentially unpredictable random sequence.
 /// Otherwise sets the SEED to the argument value.
-/// This will repeat the same sequence for each value.
-pub fn set_seeds( seed:u64 ) { 
-    let newseed = if seed == 0 { 
-        UNIX_EPOCH.elapsed().unwrap().as_nanos() as u64
-    } else { seed };
-    SEED.with(|s| *s.borrow_mut() = newseed);    
-    reset_xoshi();
+/// The latter will repeat the same unique sequence for each value.
+pub fn set_seeds( mut seed:u64 ) { 
+    if seed == 0 { seed = UNIX_EPOCH.elapsed().unwrap().as_nanos() as u64 };
+    SEED.set(seed); 
+    put_xoshi( &[ splitmix(), splitmix(), splitmix(), splitmix() ] )
 }
-
-/// Resets xoshi seeds. Automatically called by `set_seeds()`.
-fn reset_xoshi() { 
-    let seeds = [ splitmix(), splitmix(), splitmix(), splitmix() ];
-    put_xoshi(&seeds);
-}
-
 /// Load the xoshiro seeds into an array
 /// so as not to have to pass them round everywhere as an `&mut [u64;4]` argument
 #[inline]
 pub fn get_xoshi() -> [u64;4] {
-    [ X0.with(|s| *s.borrow()),
-      X1.with(|s| *s.borrow()),
-      X2.with(|s| *s.borrow()),
-      X3.with(|s| *s.borrow()) ]
+ [ X0.get(), X1.get(), X2.get(), X3.get() ]
 }
 /// Put the xoshiro seeds back from a passed array
 #[inline]
 pub fn put_xoshi(seeds: &[u64;4]) {
-    X0.with(|s| *s.borrow_mut() = seeds[0]);
-    X1.with(|s| *s.borrow_mut() = seeds[1]); 
-    X2.with(|s| *s.borrow_mut() = seeds[2]); 
-    X3.with(|s| *s.borrow_mut() = seeds[3]);
+    X0.set(seeds[0]);
+    X1.set(seeds[1]);
+    X2.set(seeds[2]);
+    X3.set(seeds[3]);
 }
 /// Core part of the xoshi (xor shift) algorithms
 #[inline]
@@ -65,12 +55,6 @@ pub fn xoshi_step(s: &mut[u64;4]) {
 	s[2] ^= t;
 	s[3] =  s[3].rotate_left(45);
 }
-
-/// get the SEED values
-pub fn get_seed() -> u64 { SEED.with(|s| *s.borrow()) }
-
-/// put the SEED values
-pub fn put_seed(seed:u64) { SEED.with(|s| *s.borrow_mut() = seed) }
 
 /// Get random numbers of various smaller unsigned integer types by 
 /// specifying the number of bits required,  
@@ -110,11 +94,11 @@ pub fn ran_frange(rnum:f64, min:f64, max:f64) -> f64 { (max-min) * rnum + min }
 /// Disclaimer: for cryptography, use real random source.
 #[inline]
 pub fn ranf64() -> f64 {
-    let mut seed = get_seed(); // load SEED value into a local register
+    let mut seed = SEED.get(); // load SEED value into a local register
     seed ^= seed << 13;
     seed ^= seed >> 7;
     seed ^= seed << 17;
-    put_seed(seed);  // update SEED
+    SEED.set(seed);  // update SEED
     // drop low 11 digits from u64 to fit into the 53 bit f64 mantissa
     // and normalize to [0,1).
     (seed >> 11) as f64 / MANTISSA_MAX
@@ -122,78 +106,78 @@ pub fn ranf64() -> f64 {
 
 /// Generates vector of size d, filled with full range u64 random numbers.
 pub fn ranvu64(d: usize) -> Result<Vec<u64>,Re> {
-    if d == 0 { Err(rerror("dimensions","ranvu64: zero size")) }
+    if d == 0 { rerror("dimensions","ranvu64: zero size")? }
     else { Ok((0..d).map(|_|xoshiu64()).collect::<Vec<u64>>())}
 }
 
 /// Generates vector of size d, of u16 random numbers in [0,65535].
 /// You can similarly recast u64 yourself to any other type.
 pub fn ranvu16(d: usize) -> Result<Vec<u16>,Re> {
-    if d == 0 { Err(rerror("dimensions","ranvu16: zero size")) }
+    if d == 0 { rerror("dimensions","ranvu16: zero size")? }
     else { Ok((0..d).map(|_|ran_ubits(16)as u16).collect::<Vec<u16>>())}
 }
 
 /// Generates vector of size d, of u8 random numbers in [0,255].
 /// You can similarly recast u64 yourself to any other type.
 pub fn ranvu8(d: usize) -> Result<Vec<u8>,Re> {
-    if d == 0 { Err(rerror("dimensions","ranvu8: zero size")) }
+    if d == 0 { rerror("dimensions","ranvu8: zero size")? }
     else { Ok((0..d).map(|_|ran_ubits(8)as u8).collect::<Vec<u8>>())}
 }
 
 /// Generates vector of size d, of i64 random numbers.
 pub fn ranvi64(d: usize) -> Result<Vec<i64>,Re> {
-    if d == 0 { Err(rerror("dimensions","ranvi64: zero size")) }
+    if d == 0 { rerror("dimensions","ranvi64: zero size")? }
     else { Ok((0..d).map(|_|xoshiu64() as i64).collect::<Vec<i64>>())}
 }
 
 /// Generates vector of size d, of i64 random numbers in the interval [min,max].
 /// May include zero.
 pub fn ranvi64_in(d: usize, min:i64, max:i64) -> Result<Vec<i64>,Re> {
-    if d == 0 { Err(rerror("dimensions","ranvi64_in: zero size")) }
-    else if min >= max { Err(rerror("range",format!("ranvi64_in: {min} {max}"))) }
+    if d == 0 { rerror("dimensions","ranvi64_in: zero size")? }
+    else if min >= max { rerror("range",format!("ranvi64_in: {min} {max}"))? }
     else { Ok((0..d).map(|_|ran_irange(min,max)).collect::<Vec<i64>>())}
 }
 
 /// Generates vector of size d, of f64 random numbers in [0,1).
 pub fn ranvf64(d: usize) -> Result<Vec<f64>,Re> {
-    if d == 0 { Err(rerror("dimensions","ranvf64: zero size")) } 
+    if d == 0 { rerror("dimensions","ranvf64: zero size")? } 
     else { Ok((0..d).map(|_|ranf64()).collect::<Vec<f64>>())}
 }
 
 /// Generates n vectors of size d each, of full range u64 random numbers.
 pub fn ranvvu64(d: usize, n: usize) -> Result<Vec<Vec<u64>>,Re> {
-    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvu64: {d} {n}"))) }
+    if n * d <= 1 { rerror("dimensions",format!("ranvvu64: {d} {n}"))? }
     else { (0..n).map(|_|ranvu64(d)).collect::<Result<Vec<Vec<u64>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of u16 random numbers in the interval [0,65535].
 pub fn ranvvu16(d: usize, n: usize) -> Result<Vec<Vec<u16>>,Re> {
-    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvu16: {d} {n}"))) } 
+    if n * d <= 1 { rerror("dimensions",format!("ranvvu16: {d} {n}"))? } 
     else { (0..n).map(|_|ranvu16(d)).collect::<Result<Vec<Vec<u16>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of u8 random numbers in the interval [0,255].
 pub fn ranvvu8(d: usize, n: usize) -> Result<Vec<Vec<u8>>,Re> {
-    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvu8: {d} {n}"))) } 
+    if n * d <= 1 { rerror("dimensions",format!("ranvvu8: {d} {n}"))? } 
     else { (0..n).map(|_|ranvu8(d)).collect::<Result<Vec<Vec<u8>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
 pub fn ranvvi64(d: usize, n: usize) -> Result<Vec<Vec<i64>>,Re> {
-    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvi64: {d} {n}"))) } 
+    if n * d <= 1 { rerror("dimensions",format!("ranvvi64: {d} {n}"))? } 
     else { (0..n).map(|_|ranvi64(d)).collect::<Result<Vec<Vec<i64>>,Re>>()}
 }
 
 /// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
 pub fn ranvvi64_in(d: usize, n: usize, min:i64, max:i64) -> Result<Vec<Vec<i64>>,Re> {
-    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvi64_in: {d} {n}"))) }    
-    else if min >= max { Err(rerror("range",format!("ranvvi64_in: {min} {max}"))) }
+    if n * d <= 1 { rerror("dimensions",format!("ranvvi64_in: {d} {n}"))? }    
+    else if min >= max { rerror("range",format!("ranvvi64_in: {min} {max}"))? }
     else { (0..n).map(|_|ranvi64_in(d,min,max)).collect::<Result<Vec<Vec<i64>>,Re>>() }
 }
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
 pub fn ranvvf64(d: usize, n: usize) -> Result<Vec<Vec<f64>>,Re> {
-    if n * d <= 1 { Err(rerror("dimensions",format!("ranvvf64: {d} {n}"))) }
+    if n * d <= 1 { rerror("dimensions",format!("ranvvf64: {d} {n}"))? }
     else { (0..n).map(|_|ranvf64(d)).collect::<Result<Vec<Vec<f64>>,Re>>()}
 }
 
@@ -203,8 +187,8 @@ pub fn ranvvf64(d: usize, n: usize) -> Result<Vec<Vec<f64>>,Re> {
 /// Passes the BigCrush test.
 /// Adapted from Sebastiano Vigna, 2015.
 pub fn splitmix() -> u64 {
-    let mut z = get_seed().overflowing_add(0x9e3779b97f4a7c15).0;
-    put_seed(z);
+    let mut z = SEED.get().overflowing_add(0x9e3779b97f4a7c15).0;
+    SEED.set(z);
 	z = (z ^ (z >> 30)).overflowing_mul(0xbf58476d1ce4e5b9).0;
 	z = (z ^ (z >> 27)).overflowing_mul(0x94d049bb133111eb).0;
 	z ^ (z >> 31)
@@ -235,12 +219,12 @@ pub fn xoshif64() -> f64 {
 /// Generates vector of size d, of f64 random numbers in [0,1).
 /// Bit slower but otherwise superior to `ranvf64`.
 pub fn ranvf64_xoshi(d: usize) -> Result<Vec<f64>,Re> {
-    if d == 0 { Err(rerror("dimensions",format!("ranvf64_xoshi: {d}"))) }
+    if d == 0 { rerror("dimensions",format!("ranvf64_xoshi: {d}"))? }
     else { Ok((0..d).map(|_|xoshif64()).collect::<Vec<f64>>()) }
 }
 
 /// Generates n vectors of size d each, of f64 random numbers in [0,1).
 pub fn ranvvf64_xoshi(d: usize, n: usize) -> Result<Vec<Vec<f64>>,Re> {
-    if n * d < 1 { Err(rerror("dimensions",format!("ranvvf64_xoshi: {d} {n}"))) }
+    if n * d < 1 { rerror("dimensions",format!("ranvvf64_xoshi: {d} {n}"))? }
     else { (0..n).map(|_|ranvf64_xoshi(d)).collect() }
 }

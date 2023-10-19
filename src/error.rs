@@ -30,15 +30,14 @@ impl fmt::Display for Re {
         }
     }
 
-/// Convenience function for building RanError<String>  
-/// from error kind name and payload message, which can be either &str or String
-pub fn rerror(kind: &str, msg: impl Into<String>) -> Re {
+/// Convenience function for building RError<String>  
+/// from short name and payload message, which can be either &str or String
+pub fn rerror<T>(kind: &str, msg: impl Into<String>) -> Result<T,RanError<String>> {
     match kind {
-        "type" => RanError::Type(msg.into()),
-        "dimensions" => RanError::Dimensions(msg.into()),
-        "range" => RanError::Range(msg.into()),
-        "other" => RanError::Other(msg.into()),
-        _ => RanError::Other("Wrong error kind given to rerror".into())
+        "type" => Err(RanError::Type(msg.into())), 
+        "dimensions"  => Err(RanError::Dimensions(msg.into())), 
+        "range" => Err(RanError::Range(msg.into())),
+        "other" => Err(RanError::Other(msg.into())),
+        _ => Err(RanError::Other("Wrong error kind given to rerror".into()))
     }
-
 }
