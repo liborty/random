@@ -105,9 +105,9 @@ println!(
 );
 ```
 
-`stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Dislay` is implemented for `Rvv` type and we did not need to extract the wrapped value (vector of vectors).
+`stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Display` is implemented for `Rvv` type and we did not need to extract the wrapped value (vector of vectors).
 
-The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let`.
+The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let` or with `let .. else`
 
 Alternatively, for convenience, they can all be extracted with supplied `get` methods. Their names follow this syntax: `get{|v|vv}end_type()`.
 
@@ -129,22 +129,22 @@ pub fn newu16() -> Self
 pub fn newu8() -> Self  
 ```
 
-The following methods are all implemented for `Rnum`, that means invoked on `Rnum` type variable. Even when generating `Rv` or `Rvv` type results. `Rnum` type input variable (`self`) in all cases serves just to inform the generic method about the numeric type required for the generated values:
+The following methods are all implemented for `Rnum`, that means invoked on `Rnum` type variable. Even when generating `Rv` or `Rvv` type results. `Rnum` type input variable (`self`) in all cases serves just to inform the generic method about the numeric end type required for the generated values:
 
 `pub fn rannum(&self) -> Self`  
-returns a wrapped random number of one of the main types in  maximum range allowed by the width of the type. The standardised range [0,1) is used for `f64`.
+returns a wrapped random number of one of the main types in  maximum range allowed by the width of the type. The standardised interval range [0,1) is used for `f64`.
 
 `pub fn rannum_in(&self,min:f64,max:f64) -> Self`  
 returns a wrapped random number of one of the main types in the range min,max (min,max are  always `f64`s for commonality). The range should not exceed the width of the type, e.g. 0.,255. for `u8`. Nor should it be negative for unsigned types.
 
 `pub fn ranv(&self,d:usize) -> Result<Rv,RE>`  
-Rv value is a wrapped Vec of length d filled with random numbers of one of the main primitive types. Note that the whole `Vec` is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
+Rv value is a wrapped Vec of length d filled with random numbers of one of the main primitive end types. Note that the whole `Vec` is wrapped, not each individual element of it. Thus only one pattern extraction is needed.
 
 `pub fn ranv_in(&self,d:usize,min:f64,max:f64) -> Rv`  
-same as `ranv` but using the specified range for the random values.
+same as `ranv` but using the specified range for the generated random values.
 
 `pub fn ranvv(&self,d:usize,n:usize) -> Result<Rvv,RE>`  
-Rvv value is a wrapped `Vec<Vec<_>>` consisting of n vectors, each of length d, filled with random numbers of one of the main primitive types. Note that only the whole result is wrapped, not each individual vector or element of it. Thus, again, only one pattern extraction is needed.
+Rvv value is a wrapped `Vec<Vec<_>>` consisting of n vectors, each of length d, filled with random numbers of one of the main primitive end types. Note that only the whole result is wrapped, not each individual vector or element of it. Thus, again, only one pattern extraction is needed.
 
 `pub fn ranvv_in(&self,d:usize,n:usize,min:f64,max:f64) -> Result<Rvv,RE>`  
 same as `ranvv` but using the specified range for the random values.
