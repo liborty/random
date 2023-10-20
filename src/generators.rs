@@ -20,6 +20,10 @@ thread_local!(
     static X3: Cell<u64> = splitmix().into();
 );
 
+/// For saving the current value of seed, reproducing the same sequence later
+#[inline]
+pub fn get_seed() -> u64 { SEED.get() }
+
 /// Manual initialisation of SEED (and derived xoshi seeds). 
 /// When seed == 0, resets SEED to systime in nanoseconds, 
 /// producing an essentially unpredictable random sequence.

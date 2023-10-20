@@ -246,6 +246,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.1.4** Restored `get_seed()` removed in `1.1.3`. It is useful for saving the state of SEED to reproduce the same sequence later.
+
 **Version 1.1.3** Some code simplification made possible by Rust 1.73.0. Also changed `rerror` utility to return `Result`.
 
 **Version 1.1.2** The seed is initialised at compile time. This means that the same executable will still always produce the same sequence. For complete unpredictability, `set_seeds(0)` can newly be used.
