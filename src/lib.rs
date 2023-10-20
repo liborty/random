@@ -11,7 +11,7 @@ pub mod generators;
 /// Some helper functions
 pub mod secondary;
 
-pub use crate::generators::set_seeds;
+pub use crate::generators::{set_seeds,get_seed};
 pub use crate::error::{RanError,Re};
 
 /// Wrapper for enum polymorphism - supported end types
