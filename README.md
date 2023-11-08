@@ -256,6 +256,8 @@ pub fn ran_ftrans(rnum:f64, min:f64, max:f64) -> f64
 
 ## Recent Releases (Latest First)
 
+**Version 1.1.5** Some minor comments and tests improvements.
+
 **Version 1.1.4** Restored `get_seed()` removed in `1.1.3`. It is useful for saving the state of SEED to reproduce the same sequence later.
 
 **Version 1.1.3** Some code simplification made possible by Rust 1.73.0. Also changed `rerror` utility to return `Result`.

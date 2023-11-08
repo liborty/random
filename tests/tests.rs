@@ -42,7 +42,7 @@ fn rannums() -> Result<(),Re> {
     if let Rv::U8(vecu8) = ru8.ranv_in(20,1.,6.) {
        println!("\nDice roll: {}",stringv(&vecu8)) };
 
-    // or with full error checking and returning
+    // or with full error checking and error return
     let Rv::U8(vecu8) = ru8.ranv_in(10,0.,1.) else {
        return rerror("type","Pattern extraction failed for random bytes"); 
     };
