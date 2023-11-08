@@ -12,7 +12,7 @@ pub mod generators;
 pub mod secondary;
 
 pub use crate::generators::{set_seeds,get_seed};
-pub use crate::error::{RanError,Re};
+pub use crate::error::{RanError,rerror,Re};
 
 /// Wrapper for enum polymorphism - supported end types
 pub enum Rnum {

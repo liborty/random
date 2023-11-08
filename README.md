@@ -4,8 +4,7 @@
 
 ## Description
 
-The objective of this crate is to generate excellent quality random numbers fast, simply and with a minimal footprint. It is written in 100% safe Rust, 
-is lightweight and has no dependencies.
+The objective of this crate is to generate excellent quality random numbers fast, simply and with a minimal footprint. It is written in 100% safe Rust, is lightweight and has no dependencies.
 
 Even so, there are four different generating algorithms on offer, plus a good range of utility functions to easily generate individual numbers of various types, vectors, and vectors of vectors, all filled with random numbers.
 
@@ -89,11 +88,22 @@ When pattern extracting with the `if let` clause, the else branch can be used to
 
 ```rust
 // wrapped vec of random u8 values
-if let Rv::U8(vx) = ru8.ranv_in(20,1.,6.)?  
+if let Rv::U8(vx) = ru8.ranv_in(20,1.,6.)  
     {  println!("Dice roll sequence: {}", stringv(&vx)) };
 ```
 
-This example illustrates the use of enum type `Rv`, used for vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Of course, Rv type object (unextracted) would print as it is.
+or
+
+```rust
+// ten random binary numbers - with full error checking
+let Rv::U8(vecu8) = ru8.ranv_in(10,0.,1.) else {
+    return rerror("type","Pattern extraction failed for bytes"); 
+};
+println!("\nBinary numbers: {}",stringv(&vecu8));  
+
+```
+
+This example illustrates the use of enum type `Rv`, used for vector of random numbers. As can be seen, its variants are extracted in the same way as from `Rnum`. Of course, because it also has `Display` trait implemented, `Rv` type object would print as it is.
 
 There is also enum type `Rvv` for returning vectors of vectors of random numbers:
 
@@ -107,7 +117,7 @@ println!(
 
 `stringvv` is another utility function to enable display of generic vectors of vectors. We did not need to use it here since `Display` is implemented for `Rvv` type and we did not need to extract the wrapped value (vector of vectors).
 
-The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed with `if let` or with `let .. else`
+The results wrapped within all three return types: `Rnum,Rv,Rvv` can all be pattern extracted as needed using `if let` or `let .. else`
 
 Alternatively, for convenience, they can all be extracted with supplied `get` methods. Their names follow this syntax: `get{|v|vv}end_type()`.
 

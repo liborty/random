@@ -2,9 +2,6 @@ use std::fmt;
 use std::error::Error;
 use std::fmt::Debug;
 
-/// Shorthand type for returned errors with message payload specialized to String
-pub type Re = RanError<String>;
-
 #[derive(Debug)]
 /// Custom RStats Error
 pub enum RanError<T> { 
@@ -18,6 +15,9 @@ pub enum RanError<T> {
     Other(T)
 }
 
+/// Shorthand type for returned errors with message payload specialized to String
+pub type Re = RanError<String>;
+
 impl Error for Re {} 
 
 impl fmt::Display for Re {
@@ -30,8 +30,8 @@ impl fmt::Display for Re {
         }
     }
 
-/// Convenience function for building RError<String>  
-/// from short name and payload message, which can be either &str or String
+/// Convenience function for building `RanError<String>`  (ran crate custom error)
+/// from short name and payload message, which can be either `&str` or `String`
 pub fn rerror<T>(kind: &str, msg: impl Into<String>) -> Result<T,RanError<String>> {
     match kind {
         "type" => Err(RanError::Type(msg.into())), 

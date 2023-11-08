@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 #[cfg(test)]
 use times::bench;
-use ran::{Rnum,Rv,Re,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
+use ran::{Rnum,Rv,Re,rerror,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
 
 #[test]
 fn rannums() -> Result<(),Re> {
@@ -38,14 +38,15 @@ fn rannums() -> Result<(),Re> {
     println!("2 random i64s: {}", stringv(&ri.ranv(2)?.getvi64()?));
 
     // this is expanded here just to demonstrate pattern extraction
-    // of the wrapped Vec<u8>, which is not normally needed for just printing it: 
-    // println!("Dice roll: {}",ru8.ranvec_in(20,1.,6.)};
+    // of the wrapped Vec<u8>, which is not normally needed for just printing it 
     if let Rv::U8(vecu8) = ru8.ranv_in(20,1.,6.) {
        println!("\nDice roll: {}",stringv(&vecu8)) };
 
-    // ten random binary numbers
-    if let Rv::U8(vecu8) = ru8.ranv_in(10,0.,1.) {
-        println!("\nBinary numbers: {}",stringv(&vecu8)) };   
+    // or with full error checking and returning
+    let Rv::U8(vecu8) = ru8.ranv_in(10,0.,1.) else {
+       return rerror("type","Pattern extraction failed for random bytes"); 
+    };
+    println!("\nBinary numbers: {}",stringv(&vecu8));   
 
     // vec of vecs using ranvv_in(d,n,min,max)
     println!("\n5x5 matrix of integers in range [-10,10]:\n{}",
