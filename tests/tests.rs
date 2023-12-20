@@ -1,76 +1,47 @@
 // #![allow(unused_imports)]
 #![allow(dead_code)]
 #[cfg(test)]
-use times::bench;
-use ran::{Rnum,Rv,Re,rerror,set_seeds,generators::{ranvvu8,ranvvu16,ranvvu64,ranvvi64,ranvvf64,},secondary::stringv};
+use ran::{Re,set_seeds,stringv,stringvv,
+    ran_u8,ran_u16,ran_u64,ran_i64,ran_f64,ran_u64_range,ran_i64_range,ran_f64_range,
+    ranv_u8,ranv_u16,ranv_u64,ranv_i64,ranv_f64,ranv_u64_range,ranv_i64_range,ranv_f64_range,
+    ranvv_u8,ranvv_u16,ranvv_u64,ranvv_i64,ranvv_f64,ranvv_u64_range,ranvv_i64_range,ranvv_f64_range
+};
 
 #[test]
-fn rannums() -> Result<(),Re> {
-
-    let rf = Rnum::newf64();
-    let ru = Rnum::newu64();
-    let ri = Rnum::newi64();
-    let ru16 = Rnum::newu16();
-    let ru8 = Rnum::newu8();
-
-    println!("\nSingle byte: {}",ru8.rannum().getu8()?); 
-    let vecu8 = ru8.ranv(10)?.getvu8()?;
-    println!("Vec of bytes: {}",stringv(&vecu8)); 
-    if let Rv::U8(newvecu8) = ru8.ranv(10)? {
-        println!("Vec of bytes: {}\n",stringv(&newvecu8));
-    } else {
-        println!("Error to process here\n");
-    };   
-
-    for _i in 1..5 {
-    println!("f64: {},\nu64: {},\ni64: {},\nu16: {}, \nu8: {}\n",
-        rf.rannum_in(0.,100.),  // wrapped f64 value
-        ru.rannum_in(1.,1000.), // wrapped u64, 1 to 1000 (inclusive)
-        ri.rannum_in(-10.,10.), // wrapped i64, -10 to 10 (inclusive)
-        ru16.rannum_in(60000.,65535.), // wrapped u16, 60000 to 65535 (inclusive)
-        ru8.rannum_in(1.,6.)    // wrapped u8, 1 to 6 (inclusive)
-    );
-    }
-
-    println!("\n10 random bytes: {}",ru8.ranv(10)?);
-    println!("5 random pairs of bytes: {}",ru16.ranv(5)?);
-    // the following line tests 'getvi64()' instead of relying on Display
-    println!("2 random i64s: {}", stringv(&ri.ranv(2)?.getvi64()?));
-
-    // this is expanded here just to demonstrate pattern extraction
-    // of the wrapped Vec<u8>, which is not normally needed for just printing it 
-    if let Rv::U8(vecu8) = ru8.ranv_in(20,1.,6.) {
-       println!("\nDice roll: {}",stringv(&vecu8)) };
-
-    // or with full error checking and error return
-    let Rv::U8(vecu8) = ru8.ranv_in(10,0.,1.) else {
-       return rerror("type","Pattern extraction failed for random bytes"); 
-    };
-    println!("\nBinary numbers: {}",stringv(&vecu8));   
-
-    // vec of vecs using ranvv_in(d,n,min,max)
-    println!("\n5x5 matrix of integers in range [-10,10]:\n{}",
-        ri.ranvv_in(5,5,-10.,10.)?);
-    Ok(())
+fn ran() {
+    println!("ran_u8:     {}",ran_u8()); 
+    println!("ran_u16:    {}",ran_u16());
+    println!("ran_u64:    {}",ran_u64()); 
+    println!("ran_i64:    {}",ran_i64());
+    println!("ran_f64:    {}",ran_f64());
+    println!("ran_u64_range: {}",ran_u64_range(1..=6));   
+    println!("ran_i64_range: {}",ran_i64_range(-6..=6));   
+    println!("ran_f64_range: {}",ran_f64_range(-100.0..=100.0));   
 }
 
 #[test]
-fn timing() -> Result<(),Re> {
-    const D:usize = 10000;
-    const N:usize = 20;
-    println!( "Generating {} sets of vectors of length {} each",N, D );
+fn ranv()-> Result<(),Re> {
+    println!("ranv_u8:     {}",stringv(&ranv_u8(5)?)); 
+    println!("ranv_u16:    {}",stringv(&ranv_u16(5)?));
+    println!("ranv_u64:    {}",stringv(&ranv_u64(5)?)); 
+    println!("ranv_i64:    {}",stringv(&ranv_i64(5)?));
+    println!("ranv_f64:    {}",stringv(&ranv_f64(5)?)); 
+    println!("ranv_u64_range: {}",stringv(&ranv_u64_range(5,1..=6)?));   
+    println!("ranv_i64_range: {}",stringv(&ranv_i64_range(5,-6..=6)?));   
+    println!("ranv_f64_range: {}",stringv(&ranv_f64_range(5,-100_f64..=100_f64)?));  
+    Ok(()) 
+}
 
-    const NAMES:[&str;5] = [ "ranvvu8","ranvvu64","ranvvu16","ranvvi64","ranvvf64" ];
-
-    const CLOSURES:[fn();5] = [
-        || { ranvvu8(D,N).unwrap_or_else(|_| panic!("ranvvu8 failed")); }, 
-        || { ranvvu64(D,N).unwrap_or_else(|_| panic!("ranvvu64 failed")); },
-        || { ranvvu16(D,N).unwrap_or_else(|_| panic!("ranvvu16 failed")); },
-        || { ranvvi64(D,N).unwrap_or_else(|_| panic!("ranvvi64 failed")); },
-        || { ranvvf64(D,N).unwrap_or_else(|_| panic!("ranvvu8 failed")); } ];
-
-    set_seeds(7777777777_u64);   // intialise random numbers generator
-    // Rnum encapsulates the type of the data items
-    bench(10,&NAMES,&CLOSURES); 
-    Ok(())
+#[test]
+fn ranvv()-> Result<(),Re> {
+    set_seeds(0);
+    println!("ranvv_u8:     {}",stringvv(&ranvv_u8(2,5)?)); 
+    println!("ranvv_u16:    {}",stringvv(&ranvv_u16(2,5)?));
+    println!("ranvv_u64:    {}",stringvv(&ranvv_u64(2,5)?)); 
+    println!("ranvv_i64:    {}",stringvv(&ranvv_i64(2,5)?));
+    println!("ranvv_f64:    {}",stringvv(&ranvv_f64(2,5)?)); 
+    println!("ranvv_u64_range: {}",stringvv(&ranvv_u64_range(2,5,1..=6)?));   
+    println!("ranvv_i64_range: {}",stringvv(&ranvv_i64_range(2,5,-6..=6)?));   
+    println!("ranvv_f64_range: {}",stringvv(&ranvv_f64_range(2,5,-100_f64..=100_f64)?));  
+    Ok(()) 
 }
