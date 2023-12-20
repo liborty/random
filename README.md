@@ -93,6 +93,8 @@ Notes:
 
 ## Recent Releases (Latest First)
 
+**Version 2.0.1** Corrected swapped args d,n in `ranvv_f64_range`.
+
 **Version 2.0.0** Removed enumerations generics as an unnecessary complication from the user's point of view.
 
 **Version 1.1.5** Some minor comments and tests improvements.

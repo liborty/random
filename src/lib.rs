@@ -280,6 +280,7 @@ pub fn ranv_f64_range(d: usize, r: RangeInclusive<f64>) -> Result<Vec<f64>, Re> 
     }
 }
 
+
 /// Generates n vectors of size d each, of full range u64 random numbers.
 pub fn ranvv_u64(n: usize, d: usize) -> Result<Vec<Vec<u64>>, Re> {
     if n * d <= 1 {
@@ -313,7 +314,7 @@ pub fn ranvv_u8(n: usize, d: usize) -> Result<Vec<Vec<u8>>, Re> {
     }
 }
 
-/// Generates n vectors of size d each, of i64 random numbers in the interval [min,max].
+/// Generates n vectors of size d each, of i64 random numbers.
 pub fn ranvv_i64(n: usize, d: usize) -> Result<Vec<Vec<i64>>, Re> {
     if n * d <= 1 {
         rerror("dimensions", format!("ranvv_i64: {d} {n}"))?
@@ -334,7 +335,7 @@ pub fn ranvv_f64(n: usize, d: usize) -> Result<Vec<Vec<f64>>, Re> {
     }
 }
 
-/// Generates vector of size d, of u64 random numbers in the RangeInclusive min..=max
+/// Generates n vectors of size d, of u64 random numbers in the RangeInclusive min..=max
 pub fn ranvv_u64_range(n: usize, d: usize, r: RangeInclusive<u64>) -> Result<Vec<Vec<u64>>, Re> {
     if n * d <= 1 {
         rerror("dimensions", format!("ranvv_urange: {d} {n}"))?
@@ -347,7 +348,7 @@ pub fn ranvv_u64_range(n: usize, d: usize, r: RangeInclusive<u64>) -> Result<Vec
     }
 }
 
-/// Generates vector of size d, of i64 random numbers in the RangeInclusive min..=max.
+/// Generates n vectors of size d, of i64 random numbers in the RangeInclusive min..=max.
 /// May include zero.
 pub fn ranvv_i64_range(n: usize, d: usize, r: RangeInclusive<i64>) -> Result<Vec<Vec<i64>>, Re> {
     if n * d <= 1 {
@@ -361,8 +362,8 @@ pub fn ranvv_i64_range(n: usize, d: usize, r: RangeInclusive<i64>) -> Result<Vec
     }
 }
 
-/// Generates vector of size d, of f64 random numbers in the RangeInclusive min..=max.
-pub fn ranvv_f64_range(d: usize, n: usize, r: RangeInclusive<f64>) -> Result<Vec<Vec<f64>>, Re> {
+/// Generates n vectors of size d, of f64 random numbers in the RangeInclusive min..=max.
+pub fn ranvv_f64_range(n: usize, d: usize, r: RangeInclusive<f64>) -> Result<Vec<Vec<f64>>, Re> {
     if n * d <= 1 {
         rerror("dimensions", format!("ranvv_frange: {d} {n}"))?
     } else if r.is_empty() {
