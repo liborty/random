@@ -183,13 +183,7 @@ pub fn ran_f64() -> f64 {
     result
 }
 
-/// Generate an u64 random number in the RangeInclusive min..=max.
-/// /// # Example
-/// ```
-/// set_seeds(1234567);
-/// // Roll of the classical die [1,6]:
-/// assert_eq!(6,ran_urange(1..=6));
-/// ```
+/// Generate an u64 random number in the RangeInclusive min..=max
 pub fn ran_u64_range(r: RangeInclusive<u64>) -> u64 {
     (ran_u64() % (1 + r.end() - r.start())) + r.start()
 }
